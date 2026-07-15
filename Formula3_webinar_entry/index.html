@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ورود به وبینار فرمول ۳</title>
+<meta name="description" content="صفحه ورود به وبینار رایگان فرمول ۳">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#061022; --bg-navy:#0a1830; --card:#0d1e3a;
+    --cyan-1:#61e7f2; --cyan-2:#2f7fe8; --gold-1:#f6cf6a;
+    --green-1:#7be0a0; --text-1:#f5f8ff; --text-2:#a9b7d0;
+    --line:rgba(139,180,229,.18); --danger:#f28b8b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    min-height:100vh; font-family:"Vazirmatn",sans-serif; color:var(--text-1);
+    background:
+      radial-gradient(circle at 15% 15%,rgba(47,127,232,.18),transparent 28%),
+      radial-gradient(circle at 85% 5%,rgba(97,231,242,.09),transparent 24%),
+      var(--bg-deep);
+  }
+  button,input{font-family:inherit;}
+  .topbar{
+    height:64px; display:flex; align-items:center; justify-content:center;
+    border-bottom:1px solid var(--line); background:rgba(6,16,34,.78);
+    backdrop-filter:blur(12px); position:sticky; top:0; z-index:10;
+  }
+  .topbar span{font-size:.92rem; font-weight:800; color:var(--cyan-1); letter-spacing:.2px;}
+  .container{width:min(100% - 32px,620px); margin:0 auto;}
+  main{padding:44px 0 34px;}
+  .eyebrow{
+    display:flex; width:max-content; align-items:center; gap:7px; margin:0 auto 14px;
+    padding:7px 13px; border:1px solid rgba(97,231,242,.23);
+    border-radius:100px; color:var(--cyan-1); background:rgba(97,231,242,.06);
+    font-size:.78rem; font-weight:700;
+  }
+  .live-dot{width:7px; height:7px; border-radius:50%; background:var(--cyan-1); box-shadow:0 0 12px var(--cyan-1);}
+  h1{text-align:center; font-size:clamp(1.7rem,6vw,2.45rem); line-height:1.45; font-weight:900;}
+  h1 span{color:var(--gold-1);}
+  .lead{text-align:center; color:var(--text-2); margin:12px auto 28px; line-height:1.9; font-size:.95rem;}
+  .card{
+    background:linear-gradient(145deg,rgba(13,30,58,.98),rgba(9,23,45,.98));
+    border:1px solid var(--line); border-radius:22px; padding:24px;
+    box-shadow:0 24px 70px rgba(0,0,0,.26);
+  }
+  .status-icon{
+    width:62px; height:62px; border-radius:18px; margin:0 auto 17px;
+    display:flex; align-items:center; justify-content:center; font-size:1.65rem;
+    color:var(--cyan-1); background:rgba(97,231,242,.08); border:1px solid rgba(97,231,242,.22);
+  }
+  .card h2{text-align:center; font-size:1.25rem; font-weight:800; margin-bottom:8px;}
+  .status-text{text-align:center; color:var(--text-2); font-size:.9rem; line-height:1.9;}
+  .event-date{
+    text-align:center; margin:18px 0 20px; color:var(--gold-1);
+    font-size:.9rem; font-weight:800;
+  }
+  .countdown{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; direction:ltr;}
+  .time-box{
+    background:var(--bg-deep); border:1px solid var(--line); border-radius:14px;
+    padding:13px 5px 10px; text-align:center;
+  }
+  .time-box strong{display:block; color:var(--cyan-1); font-size:1.35rem; line-height:1.2;}
+  .time-box span{display:block; color:var(--text-2); font-size:.68rem; margin-top:5px; direction:rtl;}
+  .availability-note{
+    margin-top:18px; padding:13px 15px; border-radius:13px; text-align:center;
+    color:var(--text-2); background:rgba(246,207,106,.06);
+    border:1px solid rgba(246,207,106,.2); font-size:.82rem; line-height:1.8;
+  }
+  .form{margin-top:20px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:.85rem; font-weight:700; margin-bottom:7px;}
+  .field input{
+    width:100%; height:50px; border:1px solid var(--line); border-radius:12px;
+    background:var(--bg-deep); color:var(--text-1); padding:0 14px;
+    font-size:.95rem; transition:border-color .2s,box-shadow .2s;
+  }
+  .field input::placeholder{color:#5b7096;}
+  .field input:focus{outline:none; border-color:var(--cyan-2); box-shadow:0 0 0 3px rgba(47,127,232,.18);}
+  .cta{
+    display:block; width:100%; border:0; border-radius:100px; padding:14px 18px;
+    background:linear-gradient(90deg,var(--cyan-1),var(--cyan-2)); color:#04101f;
+    font-size:1rem; font-weight:900; cursor:pointer; box-shadow:0 10px 28px rgba(47,127,232,.25);
+  }
+  .cta:disabled{opacity:.55; cursor:not-allowed;}
+  .form-msg{min-height:22px; margin-top:11px; text-align:center; font-size:.84rem;}
+  .form-msg.error{color:var(--danger);}
+  .guest-guide{
+    margin:19px 0; padding:15px; border-radius:14px; text-align:center;
+    color:var(--text-1); background:rgba(123,224,160,.07);
+    border:1px solid rgba(123,224,160,.25); font-size:.9rem; line-height:1.9;
+  }
+  .guest-guide strong{color:var(--green-1);}
+  .join-link{text-decoration:none; text-align:center;}
+  .privacy{text-align:center; color:var(--text-2); font-size:.72rem; line-height:1.8; margin-top:14px;}
+  .hidden{display:none !important;}
+  footer{border-top:1px solid var(--line); padding:19px 0; text-align:center; color:var(--text-2); font-size:.76rem;}
+  @media(max-width:420px){
+    main{padding-top:30px;}
+    .card{padding:20px 16px;}
+    .time-box strong{font-size:1.15rem;}
+    .time-box span{font-size:.62rem;}
+  }
+</style>
+</head>
+<body>
+<header class="topbar"><span>علی‌چی آکادمی</span></header>
+
+<main>
+  <div class="container">
+    <div class="eyebrow"><span class="live-dot"></span> وبینار رایگان فرمول ۳</div>
+    <h1>صفحه ورود به <span>وبینار</span></h1>
+    <p class="lead">لینک کلاس از نیم ساعت قبل از شروع وبینار در همین صفحه در دسترس قرار می‌گیره.</p>
+
+    <section class="card" id="waitingCard">
+      <div class="status-icon">⏳</div>
+      <h2>وبینار هنوز شروع نشده</h2>
+      <p class="status-text">این صفحه رو نگه دار و نزدیک زمان شروع دوباره بهش سر بزن.</p>
+      <p class="event-date" id="eventDate">جمعه ۲۶ تیر ۱۴۰۵، ساعت ۲ ظهر به وقت تهران</p>
+      <div class="countdown" aria-label="زمان باقی‌مانده تا فعال شدن لینک">
+        <div class="time-box"><strong id="days">۰۰</strong><span>روز</span></div>
+        <div class="time-box"><strong id="hours">۰۰</strong><span>ساعت</span></div>
+        <div class="time-box"><strong id="minutes">۰۰</strong><span>دقیقه</span></div>
+        <div class="time-box"><strong id="seconds">۰۰</strong><span>ثانیه</span></div>
+      </div>
+      <div class="availability-note">فرم دریافت لینک، <strong id="accessTime">نیم ساعت قبل از شروع</strong> فعال می‌شه.</div>
+    </section>
+
+    <section class="card hidden" id="accessCard">
+      <div class="status-icon">✓</div>
+      <h2>لینک ورود آماده‌ست</h2>
+      <p class="status-text">برای دریافت لینک، نام و شماره موبایلت رو وارد کن.</p>
+      <form class="form" id="accessForm" novalidate>
+        <div class="field">
+          <label for="fullname">نام و نام خانوادگی</label>
+          <input id="fullname" name="fullname" type="text" autocomplete="name" placeholder="نام و نام خانوادگی" required>
+        </div>
+        <div class="field">
+          <label for="phone">شماره موبایل</label>
+          <input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="09xxxxxxxxx" required>
+        </div>
+        <button class="cta" id="submitBtn" type="submit">دریافت لینک ورود</button>
+        <p class="form-msg" id="formMsg"></p>
+      </form>
+      <p class="privacy">اطلاعاتت فقط برای ثبت ورود و اطلاع‌رسانی همین وبینار استفاده می‌شه.</p>
+    </section>
+
+    <section class="card hidden" id="linkCard">
+      <div class="status-icon">🎥</div>
+      <h2>آماده‌ای وارد کلاس بشی</h2>
+      <p class="status-text">با دکمه زیر وارد صفحه کلاس شو.</p>
+      <div class="guest-guide">
+        بعد از باز شدن صفحه اسکای‌روم، حتماً روی گزینه <strong>«ورود به عنوان مهمان»</strong> کلیک کن.
+      </div>
+      <a class="cta join-link" id="joinLink" href="#" target="_blank" rel="noopener noreferrer">ورود به وبینار</a>
+    </section>
+  </div>
+</main>
+
+<footer><div class="container">© علی‌چی آکادمی — فرمول ۳</div></footer>
+
+<script>
+  // =========================================================
+  // تنظیمات هر وبینار — برای وبینارهای بعدی فقط این بخش را تغییر بده
+  // =========================================================
+  const WEBINAR_CONFIG = {
+    formName: "Formula3_webinar_entry",
+    title: "وبینار رایگان فرمول ۳",
+    webinarUrl: "https://www.skyroom.online/ch/alialichi/formula3",
+
+    // تاریخ و ساعت شروع به وقت ایران:
+    // فرمت: سال-ماه-روزTساعت:دقیقه:ثانیه+03:30
+    startAt: "2026-07-17T14:00:00+03:30",
+
+    // لینک چند دقیقه قبل از شروع فعال شود؟
+    accessMinutesBefore: 30
+  };
+
+  const FORM_NAME = "Formula3_webinar_entry";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec";
+  const WEBINAR_URL = WEBINAR_CONFIG.webinarUrl;
+  const WEBINAR_START_AT = new Date(WEBINAR_CONFIG.startAt);
+  const ACCESS_OPENS_AT = new Date(WEBINAR_START_AT.getTime() - WEBINAR_CONFIG.accessMinutesBefore * 60 * 1000);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const SOURCE_LABEL = urlParams.get("source") || urlParams.get("utm_source") || "بدون تگ / ارگانیک";
+  const TEST_MODE = urlParams.get("test");
+  const TEST_WAITING_END = TEST_MODE === "waiting" ? new Date(Date.now() + 90 * 60 * 1000) : null;
+  const waitingCard = document.getElementById("waitingCard");
+  const accessCard = document.getElementById("accessCard");
+  const linkCard = document.getElementById("linkCard");
+  const form = document.getElementById("accessForm");
+  const submitBtn = document.getElementById("submitBtn");
+  const formMsg = document.getElementById("formMsg");
+  let countdownTimer = null;
+
+  function formatWebinarDate(date){
+    try{
+      const dateText = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+        weekday:"long",
+        year:"numeric",
+        month:"long",
+        day:"numeric",
+        timeZone:"Asia/Tehran"
+      }).format(date);
+      const timeText = new Intl.DateTimeFormat("fa-IR", {
+        hour:"2-digit",
+        minute:"2-digit",
+        hour12:false,
+        timeZone:"Asia/Tehran"
+      }).format(date);
+      return dateText + "، ساعت " + timeText + " به وقت تهران";
+    }catch(e){
+      return date.toLocaleString("fa-IR");
+    }
+  }
+
+  function formatAccessTime(date){
+    try{
+      const timeText = new Intl.DateTimeFormat("fa-IR", {
+        hour:"2-digit",
+        minute:"2-digit",
+        hour12:false,
+        timeZone:"Asia/Tehran"
+      }).format(date);
+      return "ساعت " + timeText;
+    }catch(e){
+      return WEBINAR_CONFIG.accessMinutesBefore + " دقیقه قبل از شروع";
+    }
+  }
+
+  function toEnglishDigits(value){
+    const persian = "۰۱۲۳۴۵۶۷۸۹";
+    const arabic = "٠١٢٣٤٥٦٧٨٩";
+    return String(value || "").replace(/[۰-۹٠-٩]/g, function(digit){
+      const persianIndex = persian.indexOf(digit);
+      return persianIndex > -1 ? persianIndex : arabic.indexOf(digit);
+    });
+  }
+
+  function validateIranPhone(rawPhone){
+    let digits = toEnglishDigits(rawPhone).replace(/\D/g, "");
+    if(digits.startsWith("0098")) digits = digits.slice(4);
+    else if(digits.startsWith("98")) digits = digits.slice(2);
+    if(digits.startsWith("0")) digits = digits.slice(1);
+    if(!/^9\d{9}$/.test(digits)){
+      return {valid:false, message:"شماره موبایل ایرانی معتبر وارد کن؛ مثل 09123456789"};
+    }
+    return {valid:true, national:digits, e164:"+98" + digits};
+  }
+
+  function getTimezone(){
+    try{return Intl.DateTimeFormat().resolvedOptions().timeZone || "نامشخص";}
+    catch(e){return "نامشخص";}
+  }
+
+  function getBrowserRegion(){
+    const languages = navigator.languages || [navigator.language || ""];
+    for(const language of languages){
+      const match = String(language).toUpperCase().match(/-([A-Z]{2})$/);
+      if(match) return match[1];
+    }
+    return "نامشخص";
+  }
+
+  function toPersianNumber(value){
+    return String(value).replace(/\d/g, function(digit){return "۰۱۲۳۴۵۶۷۸۹"[digit];});
+  }
+
+  function pad(value){
+    return toPersianNumber(String(value).padStart(2, "0"));
+  }
+
+  function getPageState(now){
+    if(TEST_MODE === "waiting") return "waiting";
+    if(TEST_MODE === "access") return "access";
+    return now.getTime() < ACCESS_OPENS_AT.getTime() ? "waiting" : "access";
+  }
+
+  function renderPageState(now){
+    const state = getPageState(now);
+    waitingCard.classList.toggle("hidden", state !== "waiting");
+    if(linkCard.classList.contains("hidden")){
+      accessCard.classList.toggle("hidden", state !== "access");
+    }
+    return state;
+  }
+
+  function updateCountdown(){
+    const now = new Date();
+    if(renderPageState(now) !== "waiting"){
+      if(countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = null;
+      return;
+    }
+
+    const countdownTarget = TEST_WAITING_END || ACCESS_OPENS_AT;
+    const remaining = Math.max(0, countdownTarget.getTime() - now.getTime());
+    const totalSeconds = Math.floor(remaining / 1000);
+    document.getElementById("days").textContent = pad(Math.floor(totalSeconds / 86400));
+    document.getElementById("hours").textContent = pad(Math.floor(totalSeconds % 86400 / 3600));
+    document.getElementById("minutes").textContent = pad(Math.floor(totalSeconds % 3600 / 60));
+    document.getElementById("seconds").textContent = pad(totalSeconds % 60);
+  }
+
+  function saveToSheet(fullname, phoneInfo){
+    const payload = {
+      formName: WEBINAR_CONFIG.formName || FORM_NAME,
+      "نام": fullname,
+      "شماره تماس": phoneInfo.e164,
+      "وضعیت": "دریافت لینک ورود " + WEBINAR_CONFIG.title,
+      "منبع (Source)": SOURCE_LABEL,
+      "مقصد": "لینک اسکای‌روم وبینار",
+      "دلیل هدایت": "ثبت اطلاعات در بازه مجاز ورود",
+      "منطقه زمانی": getTimezone(),
+      "ریجن مرورگر": getBrowserRegion(),
+      "آدرس صفحه": window.location.href
+    };
+
+    try{
+      return fetch(GOOGLE_SCRIPT_URL, {
+        method:"POST",
+        mode:"no-cors",
+        keepalive:true,
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify(payload)
+      }).catch(function(){});
+    }catch(e){
+      return Promise.resolve();
+    }
+  }
+
+  form.addEventListener("submit", function(event){
+    event.preventDefault();
+    formMsg.textContent = "";
+    formMsg.className = "form-msg";
+
+    if(getPageState(new Date()) !== "access"){
+      renderPageState(new Date());
+      return;
+    }
+
+    const fullname = document.getElementById("fullname").value.trim();
+    const phoneInfo = validateIranPhone(document.getElementById("phone").value);
+    if(fullname.length < 3){
+      formMsg.textContent = "نام و نام خانوادگی رو کامل وارد کن";
+      formMsg.classList.add("error");
+      return;
+    }
+    if(!phoneInfo.valid){
+      formMsg.textContent = phoneInfo.message;
+      formMsg.classList.add("error");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "در حال آماده‌سازی لینک...";
+    saveToSheet(fullname, phoneInfo).finally(function(){
+      document.getElementById("joinLink").href = WEBINAR_URL;
+      accessCard.classList.add("hidden");
+      linkCard.classList.remove("hidden");
+      window.scrollTo({top:0, behavior:"smooth"});
+      form.reset();
+      submitBtn.disabled = false;
+      submitBtn.textContent = "دریافت لینک ورود";
+    });
+  });
+
+  document.getElementById("phone").addEventListener("input", function(event){
+    event.target.value = toEnglishDigits(event.target.value);
+    formMsg.textContent = "";
+    formMsg.className = "form-msg";
+  });
+
+  document.title = "ورود به " + WEBINAR_CONFIG.title;
+  document.getElementById("eventDate").textContent = formatWebinarDate(WEBINAR_START_AT);
+  document.getElementById("accessTime").textContent = formatAccessTime(ACCESS_OPENS_AT);
+
+  updateCountdown();
+  if(getPageState(new Date()) === "waiting"){
+    countdownTimer = setInterval(updateCountdown, 1000);
+  }
+</script>
+</body>
+</html>
