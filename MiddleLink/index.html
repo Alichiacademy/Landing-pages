@@ -288,7 +288,7 @@
       <div class="error-msg" id="err-phone">شماره معتبر وارد کن</div>
       <div class="field-hint" id="phone-hint">ایران در صدر لیست است؛ شماره را بدون نیاز به صفر اول وارد کن.</div>
     </div>
-    <button class="btn-submit" onclick="handleSubmit()">تلگرام / واتساپ ←</button>
+    <button class="btn-submit" onclick="handleSubmit()">ارتباط در تلگرام ←</button>
   </div>
 
   <div id="screen-loading">
@@ -302,7 +302,7 @@
     <div class="fallback-sub">انتخاب کن تا بهترین راه ارتباطی رو برات باز کنم</div>
     <div class="btn-group">
       <button class="btn btn-iran" onclick="goTo('telegram')">داخل ایران</button>
-      <button class="btn btn-abroad" onclick="goTo('whatsapp')">خارج از ایران</button>
+      <button class="btn btn-abroad" onclick="goTo('telegram_abroad')">خارج از ایران</button>
     </div>
   </div>
 
@@ -320,7 +320,7 @@
   // ==========================================
   const FORM_NAME = "MiddleLink"; // 👈 اسم تب (برگه) در گوگل شیت
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; // 👈 لینک اسکریپت جدیدت رو اینجا بزار
-  const WHATSAPP = "https://wa.me/989023342157?text=%D8%B3%D9%84%D8%A7%D9%85+%D8%AC%D9%87%D8%AA+%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D9%87+%D8%B1%DB%8C%D8%B2%DB%8C+%D9%BE%DB%8C%D8%A7%D9%85+%D9%85%DB%8C%D8%AF%D9%85+%E2%9C%8B";
+  const TELEGRAM_ABROAD = "https://t.me/Alichiacademy3"; // 👈 لینک جایگزین واتساپ
   
   // خواندن پارامتر سورس از لینک
   const urlParams = new URLSearchParams(window.location.search);
@@ -468,15 +468,24 @@
   }
 
   function decide(phoneInfo, signals) {
-    if (!signals.phoneIran) {
-      return { dest: "whatsapp", location: "خارج", segment: "foreign_abroad", reason: "شماره غیرایرانی" };
+    const tzAbroad = signals.timezoneKnown && !signals.timezoneIran;
+    
+    // 1. اولویت قطعی با بررسی تایم‌زون
+    if (tzAbroad) {
+      return { dest: "telegram_abroad", location: "خارج (تایم‌زون)", segment: "foreign_timezone", reason: "تایم‌زون غیرایرانی" };
     }
 
-    if (signals.timezoneIran) {
+    // 2. بررسی شماره تلفن در صورت نبودن اطلاعات تایم‌زون خارجی
+    if (!signals.phoneIran) {
+      return { dest: "telegram_abroad", location: "خارج (شماره)", segment: "foreign_phone", reason: "شماره غیرایرانی" };
+    }
+
+    // 3. در غیر این صورت ایران در نظر گرفته می‌شود
+    if (signals.timezoneIran || signals.browserRegion === 'IR') {
       return { dest: "telegram", location: "ایران", segment: "inside_iran", reason: "منطقه زمانی ایران" };
     }
 
-    return { dest: "fallback", location: "مبهم", segment: "iranian_non_tehran_timezone", reason: "نیاز به انتخاب کاربر" };
+    return { dest: "fallback", location: "مبهم", segment: "unknown", reason: "نیاز به انتخاب کاربر" };
   }
 
   // تابع ارسال داده‌ها
@@ -498,17 +507,11 @@
     const sub = document.getElementById("redirect-sub");
     document.getElementById("screen-redirect").style.display = "flex";
 
-    if (dest === "telegram") {
-      icon.className = "redirect-icon telegram";
-      icon.textContent = "✈️";
-      text.textContent = "در حال انتقال به تلگرام...";
-      sub.textContent = "چند لحظه کوتاه...";
-    } else {
-      icon.className = "redirect-icon whatsapp";
-      icon.textContent = "💬";
-      text.textContent = "در حال انتقال به واتساپ...";
-      sub.textContent = "Just a moment...";
-    }
+    icon.className = "redirect-icon telegram";
+    icon.textContent = "✈️";
+    text.textContent = "در حال انتقال به تلگرام...";
+    sub.textContent = (dest === "telegram") ? "چند لحظه کوتاه..." : "Just a moment...";
+    
     setTimeout(() => { window.location.href = url; }, 1200);
   }
 
@@ -523,8 +526,8 @@
       finalUrl = tgInfo.url;
       supportName = "@" + tgInfo.accountName;
     } else {
-      finalUrl = WHATSAPP;
-      supportName = "واتساپ (خارجی)";
+      finalUrl = TELEGRAM_ABROAD;
+      supportName = "@Alichiacademy3";
     }
 
     saveToSheet(userData.name, userData.phone, location, { 
@@ -605,8 +608,8 @@
           finalUrl = tgInfo.url;
           supportName = "@" + tgInfo.accountName;
         } else {
-          finalUrl = WHATSAPP;
-          supportName = "واتساپ (خارجی)";
+          finalUrl = TELEGRAM_ABROAD;
+          supportName = "@Alichiacademy3";
         }
 
         saveToSheet(userData.name, userData.phone, result.location, {

@@ -930,7 +930,7 @@
     <div class="fallback-sub">انتخاب کن تا بهترین راه ارتباطی رو برات باز کنم</div>
     <div class="btn-group">
       <button class="btn-primary" onclick="goTo('telegram')">📍 داخل ایران — تلگرام</button>
-      <button class="btn-primary btn-abroad" onclick="goTo('whatsapp')">✈️ خارج از ایران — واتساپ</button>
+      <button class="btn-primary btn-abroad" onclick="goTo('telegram_abroad')">✈️ خارج از ایران — تلگرام</button>
     </div>
   </div>
 
@@ -982,7 +982,7 @@ const TRANSFORMATION_IMAGES = {
 // ==========================================
 const FORM_NAME = "BMR-TEST"; // 👈 نام تب در گوگل شیت
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; // 👈 لینک اسکریپت هوشمند رو بذار اینجا
-const WHATSAPP = "https://wa.me/989023342157?text=%D8%B3%D9%84%D8%A7%D9%85+%D8%AC%D9%87%D8%AA+%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D9%87+%D8%B1%DB%8C%D8%B2%DB%8C+%D9%BE%DB%8C%D8%A7%D9%85+%D9%85%DB%8C%D8%AF%D9%85";
+const TELEGRAM_ABROAD = "https://t.me/Alichiacademy3"; // جایگزین واتساپ شد
 
 // دریافت سورس از لینک 
 const urlParams = new URLSearchParams(window.location.search);
@@ -1229,13 +1229,21 @@ function getBrowserRegion(){
   }
   return null;
 }
+
 function decide(pi){
   const tz = getTimezone(), br = getBrowserRegion();
   const tzIran = tz === 'Asia/Tehran', tzAbroad = tz && tz !== 'Asia/Tehran';
   const brAbroad = br && br !== 'IR' && br !== 'AF', brIran = br === 'IR' && tz === 'Asia/Tehran';
-  if(!pi.isIranPhone) return {dest:'whatsapp', location:'خارج', segment:'foreign_abroad'};
-  if((tzAbroad || brAbroad) && !tzIran && !brIran) return {dest:'whatsapp', location:'ایرانی خارج', segment:'iranian_abroad'};
+  
+  // 1. اولویت اول: اگر تایم‌زون کاربر خارج از ایران باشد، بدون توجه به هرچیزی به اکانت خارجی تلگرام برود
+  if(tzAbroad) return {dest:'telegram_abroad', location:'خارج (تایم‌زون)', segment:'foreign_timezone'};
+  
+  // 2. اگر شماره وارد شده خارجی باشد
+  if(!pi.isIranPhone) return {dest:'telegram_abroad', location:'خارج (شماره)', segment:'foreign_phone'};
+  
+  // 3. در غیر این صورت اگر تایم زون یا ریجن مرورگر ایران است
   if(tzIran || brIran) return {dest:'telegram', location:'ایران', segment:'inside_iran'};
+  
   return {dest:'fallback', location:'نامشخص', segment:'unknown'};
 }
 
@@ -1303,9 +1311,9 @@ function handleSubmit() {
     const tgInfo = getTelegramSupport();
     finalUrl = tgInfo.url;
     supportName = "@" + tgInfo.accountName;
-  } else if (locationDecision.dest === "whatsapp") {
-    finalUrl = WHATSAPP;
-    supportName = "واتساپ (خارجی)";
+  } else if (locationDecision.dest === "telegram_abroad") {
+    finalUrl = TELEGRAM_ABROAD;
+    supportName = "@Alichiacademy3";
   }
   locationDecision.finalUrl = finalUrl;
   locationDecision.supportName = supportName;
@@ -1385,8 +1393,8 @@ function goTo(dest){
     finalUrl = tgInfo.url;
     supportName = "@" + tgInfo.accountName;
   } else {
-    finalUrl = WHATSAPP;
-    supportName = "واتساپ (خارجی)";
+    finalUrl = TELEGRAM_ABROAD;
+    supportName = "@Alichiacademy3";
   }
 
   saveToSheet({
@@ -1408,13 +1416,10 @@ function doRedirect(dest, url){
   const text = document.getElementById('redirectText');
   const sub = document.getElementById('redirectSub');
   
-  if(dest === 'telegram'){
-    icon.textContent = '✈️'; text.textContent = 'در حال انتقال به تلگرام...'; sub.textContent = 'لحظه‌ای صبر کن';
-    setTimeout(() => { window.location.href = url; }, 700);
-  } else {
-    icon.textContent = '💬'; text.textContent = 'در حال انتقال به واتساپ...'; sub.textContent = 'Just a moment';
-    setTimeout(() => { window.location.href = url; }, 700);
-  }
+  icon.textContent = '✈️'; 
+  text.textContent = 'در حال انتقال به تلگرام...'; 
+  sub.textContent = dest === 'telegram' ? 'لحظه‌ای صبر کن' : 'Just a moment';
+  setTimeout(() => { window.location.href = url; }, 700);
 }
 
 /* ════════════════ CALCULATIONS ════════════════ */
