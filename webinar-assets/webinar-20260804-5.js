@@ -74,10 +74,19 @@
   }
 
   function randomToken() {
-    if (crypto.randomUUID) return crypto.randomUUID();
-    const bytes = new Uint8Array(24);
-    crypto.getRandomValues(bytes);
-    return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
+    try {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      if (window.crypto && crypto.getRandomValues) {
+        const bytes = new Uint8Array(24);
+        crypto.getRandomValues(bytes);
+        return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
+      }
+    } catch (_) {}
+    return [
+      Date.now().toString(36),
+      Math.random().toString(36).slice(2),
+      Math.random().toString(36).slice(2)
+    ].join("-");
   }
 
   function resolveDeviceId() {
@@ -85,37 +94,79 @@
     let value = "";
     try { value = localStorage.getItem(storageKey) || ""; } catch (_) {}
     if (!value) {
-      const cookie = document.cookie.match(/(?:^|;\s*)alichi_webinar_device=([^;]+)/);
-      value = cookie ? decodeURIComponent(cookie[1]) : randomToken();
+      try {
+        const cookie = document.cookie.match(/(?:^|;\s*)alichi_webinar_device=([^;]+)/);
+        value = cookie ? decodeURIComponent(cookie[1]) : "";
+      } catch (_) {}
     }
+    if (!value) value = randomToken();
     try { localStorage.setItem(storageKey, value); } catch (_) {}
-    document.cookie = "alichi_webinar_device=" + encodeURIComponent(value)
-      + "; Max-Age=31536000; Path=/; SameSite=Lax; Secure";
+    try {
+      document.cookie = "alichi_webinar_device=" + encodeURIComponent(value)
+        + "; Max-Age=31536000; Path=/; SameSite=Lax; Secure";
+    } catch (_) {}
     return value;
   }
 
   async function sha256(value) {
-    if (!crypto.subtle) return value;
-    const bytes = new TextEncoder().encode(value);
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
-    return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+    try {
+      if (!window.crypto || !crypto.subtle || !window.TextEncoder) return value;
+      const bytes = new TextEncoder().encode(value);
+      const digest = await Promise.race([
+        crypto.subtle.digest("SHA-256", bytes),
+        new Promise(function (_, reject) {
+          window.setTimeout(function () {
+            reject(new Error("fingerprint_timeout"));
+          }, 1200);
+        })
+      ]);
+      return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+    } catch (_) {
+      return value;
+    }
   }
 
   async function buildIdentity() {
-    const rawFingerprint = [
-      navigator.platform || "",
-      (navigator.languages || [navigator.language || ""]).join(","),
-      screen.width + "x" + screen.height,
-      screen.colorDepth || "",
-      navigator.hardwareConcurrency || "",
-      navigator.deviceMemory || "",
-      navigator.maxTouchPoints || "",
-      timezone
-    ].join("|");
-    return {
+    try {
+      const rawFingerprint = [
+        navigator.platform || "",
+        (navigator.languages || [navigator.language || ""]).join(","),
+        screen.width + "x" + screen.height,
+        screen.colorDepth || "",
+        navigator.hardwareConcurrency || "",
+        navigator.deviceMemory || "",
+        navigator.maxTouchPoints || "",
+        timezone
+      ].join("|");
+      return {
+        device_id: resolveDeviceId(),
+        fingerprint: await sha256(rawFingerprint)
+      };
+    } catch (_) {
+      return {
+        device_id: resolveDeviceId(),
+        fingerprint: null
+      };
+    }
+  }
+
+  async function resolveIdentity() {
+    const fallback = {
       device_id: resolveDeviceId(),
-      fingerprint: await sha256(rawFingerprint)
+      fingerprint: null
     };
+    try {
+      return await Promise.race([
+        identityPromise,
+        new Promise(function (resolve) {
+          window.setTimeout(function () {
+            resolve(fallback);
+          }, 1600);
+        })
+      ]);
+    } catch (_) {
+      return fallback;
+    }
   }
 
   function createCountrySelect() {
@@ -234,15 +285,30 @@
   }
 
   async function api(path, payload) {
-    const request = function () {
-      return fetch(API_BASE + path, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-store",
-        credentials: "omit",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    const request = async function () {
+      const controller = window.AbortController ? new AbortController() : null;
+      let timeoutId;
+      try {
+        return await Promise.race([
+          fetch(API_BASE + path, {
+            method: "POST",
+            mode: "cors",
+            cache: "no-store",
+            credentials: "omit",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            signal: controller ? controller.signal : undefined
+          }),
+          new Promise(function (_, reject) {
+            timeoutId = window.setTimeout(function () {
+              if (controller) controller.abort();
+              reject(new Error("api_timeout"));
+            }, 6000);
+          })
+        ]);
+      } finally {
+        if (timeoutId) window.clearTimeout(timeoutId);
+      }
     };
     let response;
     try {
@@ -255,7 +321,7 @@
         response = await request();
       } catch (error) {
         throw new Error(
-          "ارتباط با سرور ثبت‌نام برقرار نشد. اینترنت یا فیلترشکن را بررسی کن و دوباره تلاش کن."
+          "ارتباط با سرور ثبت‌نام برقرار نشد. اگر صفحه را داخل تلگرام یا اینستاگرام باز کرده‌ای، از منوی بالا گزینه «باز کردن در مرورگر» را بزن و در Chrome یا Safari دوباره تلاش کن."
         );
       }
     }
@@ -383,8 +449,11 @@
       }
       button.disabled = true;
       button.textContent = "در حال ثبت...";
+      const slowRequestTimer = window.setTimeout(function () {
+        button.textContent = "ارتباط ضعیفه؛ کمی صبر کن...";
+      }, 3500);
       try {
-        const identity = await identityPromise;
+        const identity = await resolveIdentity();
         const result = await api("/webinars/" + WEBINAR_SLUG + "/register", {
           full_name: fullName,
           raw_phone: values.normalized.raw,
@@ -395,7 +464,7 @@
           fingerprint: identity.fingerprint,
           ...source
         });
-        await saveToSheet("Formula3_webinar", {
+        saveToSheet("Formula3_webinar", {
           "نام": fullName,
           "شماره تماس": values.normalized.e164,
           "کشور": values.country,
@@ -414,7 +483,7 @@
         showRegistrationResult(result.status, result.message, result.starts_at);
         form.reset();
       } catch (error) {
-        await saveToSheet("Formula3_webinar", {
+        saveToSheet("Formula3_webinar", {
           "نام": fullName,
           "شماره تماس": values.normalized.e164,
           "کشور": values.country,
@@ -425,6 +494,7 @@
         message.textContent = error.message;
         message.classList.add("err");
       } finally {
+        window.clearTimeout(slowRequestTimer);
         button.disabled = false;
         button.textContent = "ثبت‌نام رایگان";
       }
@@ -556,8 +626,11 @@
       }
       button.disabled = true;
       button.textContent = "در حال بررسی...";
+      const slowRequestTimer = window.setTimeout(function () {
+        button.textContent = "ارتباط ضعیفه؛ کمی صبر کن...";
+      }, 3500);
       try {
-        const identity = await identityPromise;
+        const identity = await resolveIdentity();
         const result = await api("/webinars/" + WEBINAR_SLUG + "/entry", {
           raw_phone: values.normalized.raw,
           country_iso: values.country,
@@ -567,7 +640,7 @@
           fingerprint: identity.fingerprint,
           source_code: source.source_code
         });
-        await saveToSheet("Formula3_webinar_entry", {
+        saveToSheet("Formula3_webinar_entry", {
           "نام": fullName,
           "شماره تماس": values.normalized.e164,
           "کشور": values.country,
@@ -591,7 +664,7 @@
         document.getElementById("joinLink").href = result.webinar_url;
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (error) {
-        await saveToSheet("Formula3_webinar_entry", {
+        saveToSheet("Formula3_webinar_entry", {
           "نام": fullName,
           "شماره تماس": values.normalized.e164,
           "کشور": values.country,
@@ -602,6 +675,7 @@
         message.textContent = error.message;
         message.classList.add("error");
       } finally {
+        window.clearTimeout(slowRequestTimer);
         button.disabled = false;
         button.textContent = "دریافت لینک ورود";
       }
