@@ -163,6 +163,37 @@ body[data-page="entry"] .field select:focus {
   text-align: center;
 }
 
+.inline-class-access {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.inline-class-divider {
+  height: 1px;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, transparent, rgba(97, 231, 242, .35), transparent);
+}
+
+.inline-class-access .status-icon {
+  margin-inline: auto;
+}
+
+.inline-class-access .join-link {
+  display: flex;
+  margin-top: 16px;
+}
+
+.entry-form-verified .field input:disabled,
+.entry-form-verified .field select:disabled {
+  cursor: default;
+  opacity: .78;
+  border-color: rgba(123, 224, 160, .35);
+}
+
+.entry-form-verified .form-msg.success {
+  color: var(--green-1);
+}
+
 body[data-page="entry"] .guest-guide {
   border: 2px solid var(--gold-1);
   color: #fff8d5;

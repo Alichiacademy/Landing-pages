@@ -588,8 +588,10 @@
 
   function showEntryDenied(message) {
     document.getElementById("waitingCard").classList.add("hidden");
-    document.getElementById("accessCard").classList.add("hidden");
-    document.getElementById("linkCard").classList.add("hidden");
+    const accessCard = document.getElementById("accessCard");
+    const linkCard = document.getElementById("linkCard");
+    accessCard.classList.add("hidden");
+    linkCard.classList.add("hidden");
     let denied = document.getElementById("entryDeniedCard");
     if (!denied) {
       denied = document.createElement("section");
@@ -599,6 +601,25 @@
       document.querySelector("main .container").appendChild(denied);
     }
     denied.querySelector(".status-text").textContent = message;
+  }
+
+  function revealClassAccess(accessCard, form, linkCard, webinarUrl) {
+    form.classList.add("entry-form-verified");
+    form.querySelectorAll("input, select").forEach(function (field) {
+      field.disabled = true;
+    });
+    const submitButton = form.querySelector("#submitBtn");
+    if (submitButton) submitButton.classList.add("hidden");
+    const formMessage = form.querySelector("#formMsg");
+    if (formMessage) {
+      formMessage.textContent = "مشخصاتت تأیید شد.";
+      formMessage.className = "form-msg success";
+    }
+    const privacy = accessCard.querySelector(".privacy");
+    if (privacy) privacy.classList.add("hidden");
+    linkCard.classList.remove("hidden");
+    document.getElementById("joinLink").href = webinarUrl;
+    linkCard.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function initEntry() {
@@ -687,10 +708,7 @@
           message.classList.add("error");
           return;
         }
-        accessCard.classList.add("hidden");
-        linkCard.classList.remove("hidden");
-        document.getElementById("joinLink").href = result.webinar_url;
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        revealClassAccess(accessCard, form, linkCard, result.webinar_url);
       } catch (error) {
         const sheetSaved = await saveToSheet("Formula3_webinar_entry", {
           "نام": fullName,
@@ -701,10 +719,7 @@
           "دلیل هدایت": error.message
         });
         if (error.isNetworkError && sheetSaved) {
-          accessCard.classList.add("hidden");
-          linkCard.classList.remove("hidden");
-          document.getElementById("joinLink").href = WEBINAR_URL;
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          revealClassAccess(accessCard, form, linkCard, WEBINAR_URL);
         } else {
           message.textContent = error.isNetworkError
             ? "ارتباط با سرور و شیت برقرار نشد. دوباره تلاش کن."

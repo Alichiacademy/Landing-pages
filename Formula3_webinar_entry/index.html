@@ -106,21 +106,16 @@
     .time-box span{font-size:.62rem;}
   }
 </style>
-<link rel="stylesheet" href="../webinar-assets/webinar.css?v=20260804-4">
+<link rel="stylesheet" href="../webinar-assets/webinar.css?v=20260804-5">
 </head>
 <body data-page="entry">
 <header class="topbar"><span>علی‌چی آکادمی</span></header>
 
 <main>
   <div class="container">
-    <div class="eyebrow"><span class="live-dot"></span> وبینار رایگان فرمول ۳</div>
-    <h1>صفحه ورود به <span>وبینار</span></h1>
-    <p class="lead">لینک کلاس از ۵ دقیقه قبل از شروع وبینار در همین صفحه در دسترس قرار می‌گیره.</p>
-
     <section class="card" id="waitingCard">
       <div class="status-icon">⏳</div>
       <h2>وبینار هنوز شروع نشده</h2>
-      <p class="status-text">این صفحه رو نگه دار و نزدیک زمان شروع دوباره بهش سر بزن.</p>
       <p class="event-date" id="eventDate">جمعه، ۱۶ مرداد ۱۴۰۵ ساعت ۱۴:۰۰ به وقت تهران</p>
       <div class="countdown" aria-label="زمان باقی‌مانده تا فعال شدن لینک">
         <div class="time-box"><strong id="days">۰۰</strong><span>روز</span></div>
@@ -148,19 +143,19 @@
         <p class="form-msg" id="formMsg"></p>
       </form>
       <p class="privacy">اطلاعاتت فقط برای ثبت ورود و اطلاع‌رسانی همین وبینار استفاده می‌شه.</p>
-    </section>
-
-    <section class="card hidden" id="linkCard">
-      <div class="status-icon">🎥</div>
-      <h2>آماده‌ای وارد کلاس بشی</h2>
-      <div class="vpn-warning">VPN یا فیلترشکنت باید خاموش باشه.</div>
-      <p class="status-text">با دکمه زیر وارد صفحه کلاس شو.</p>
-      <div class="guest-guide">
-        بعد از باز شدن صفحه اسکای‌روم، حتماً روی گزینه
-        <strong>«ورود به عنوان مهمان»</strong>
-        کلیک کن.
+      <div class="inline-class-access hidden" id="linkCard">
+        <div class="inline-class-divider"></div>
+        <div class="status-icon">🎥</div>
+        <h2>آماده‌ای وارد کلاس بشی</h2>
+        <div class="vpn-warning">VPN یا فیلترشکنت باید خاموش باشه.</div>
+        <p class="status-text">با دکمه زیر وارد صفحه کلاس شو.</p>
+        <div class="guest-guide">
+          بعد از باز شدن صفحه اسکای‌روم، حتماً روی گزینه
+          <strong>«ورود به عنوان مهمان»</strong>
+          کلیک کن.
+        </div>
+        <a class="cta join-link" id="joinLink" href="#" target="_blank" rel="noopener noreferrer">ورود به وبینار</a>
       </div>
-      <a class="cta join-link" id="joinLink" href="#" target="_blank" rel="noopener noreferrer">ورود به وبینار</a>
     </section>
   </div>
 </main>
@@ -389,6 +384,6 @@
     countdownTimer = setInterval(updateCountdown, 1000);
   }
 </script>
-<script src="../webinar-assets/webinar-20260804-10.js"></script>
+<script src="../webinar-assets/webinar-20260804-11.js"></script>
 </body>
 </html>
