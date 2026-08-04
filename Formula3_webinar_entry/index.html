@@ -115,20 +115,20 @@
   <div class="container">
     <div class="eyebrow"><span class="live-dot"></span> وبینار رایگان فرمول ۳</div>
     <h1>صفحه ورود به <span>وبینار</span></h1>
-    <p class="lead">لینک کلاس از نیم ساعت قبل از شروع وبینار در همین صفحه در دسترس قرار می‌گیره.</p>
+    <p class="lead">لینک کلاس از ۵ دقیقه قبل از شروع وبینار در همین صفحه در دسترس قرار می‌گیره.</p>
 
     <section class="card" id="waitingCard">
       <div class="status-icon">⏳</div>
       <h2>وبینار هنوز شروع نشده</h2>
       <p class="status-text">این صفحه رو نگه دار و نزدیک زمان شروع دوباره بهش سر بزن.</p>
-      <p class="event-date" id="eventDate">جمعه، ۱۶ مرداد ۱۴۰۵ ساعت ۱۶:۰۰ به وقت تهران</p>
+      <p class="event-date" id="eventDate">جمعه، ۱۶ مرداد ۱۴۰۵ ساعت ۱۴:۰۰ به وقت تهران</p>
       <div class="countdown" aria-label="زمان باقی‌مانده تا فعال شدن لینک">
         <div class="time-box"><strong id="days">۰۰</strong><span>روز</span></div>
         <div class="time-box"><strong id="hours">۰۰</strong><span>ساعت</span></div>
         <div class="time-box"><strong id="minutes">۰۰</strong><span>دقیقه</span></div>
         <div class="time-box"><strong id="seconds">۰۰</strong><span>ثانیه</span></div>
       </div>
-      <div class="availability-note">فرم دریافت لینک، <strong id="accessTime">نیم ساعت قبل از شروع</strong> فعال می‌شه.</div>
+      <div class="availability-note">فرم دریافت لینک، <strong id="accessTime">۵ دقیقه قبل از شروع</strong> فعال می‌شه.</div>
       <div class="return-address">
         <p>برای اینکه دوباره به همین صفحه برگردی، آدرس زیر را کپی و نگه‌داری کن.</p>
         <div class="return-address-row">
@@ -183,10 +183,10 @@
 
     // تاریخ و ساعت شروع به وقت ایران:
     // فرمت: سال-ماه-روزTساعت:دقیقه:ثانیه+03:30
-    startAt: "2026-07-17T14:00:00+03:30",
+    startAt: "2026-08-07T14:00:00+03:30",
 
     // لینک چند دقیقه قبل از شروع فعال شود؟
-    accessMinutesBefore: 30
+    accessMinutesBefore: 5
   };
 
   const FORM_NAME = "Formula3_webinar_entry";
@@ -394,6 +394,6 @@
     countdownTimer = setInterval(updateCountdown, 1000);
   }
 </script>
-<script src="../webinar-assets/webinar-20260804-6.js"></script>
+<script src="../webinar-assets/webinar-20260804-9.js"></script>
 </body>
 </html>
