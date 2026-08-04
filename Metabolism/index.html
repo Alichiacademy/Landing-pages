@@ -526,7 +526,10 @@
 .protein-cards{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
 .protein-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:border-color .2s}
 .protein-card.highlight{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-glow)}
-.protein-card.highlight::before{content:'هدف فعلی تو';position:absolute;top:12px;left:16px;font-size:10px;font-weight:800;color:var(--accent);letter-spacing:1px;background:rgba(62,197,255,.1);padding:3px 8px;border-radius:6px}
+.protein-card.highlight::before{content:'پیشنهاد اصلی';position:absolute;top:12px;left:16px;font-size:10px;font-weight:800;color:var(--accent);letter-spacing:1px;background:rgba(62,197,255,.1);padding:3px 8px;border-radius:6px}
+.protein-card.alt{border-color:rgba(255,255,255,.18)}
+.protein-card.alt::before{content:'حداکثر سرعت مجاز';position:absolute;top:12px;left:16px;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;background:rgba(255,255,255,.06);padding:3px 8px;border-radius:6px}
+.protein-card.highlight.only::before{content:'تنها مسیر اصولی برای تو'}
 .pc-phase{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
 .pc-phase.fat{color:var(--orange)}
 .pc-phase.hyp{color:var(--success)}
@@ -890,12 +893,6 @@
       <div class="rm-tagline" id="rmTagline">نتیجه شخصی‌سازی‌شده‌ت آماده‌ست</div>
     </div>
 
-    <!-- ═══════ PERSONAL RESULT HEADER ═══════ -->
-    <div style="text-align: center; margin: 36px 0 24px;">
-      <div class="ba-overline">حالا نوبت توئه</div>
-      <h2 style="font-size: 22px; font-weight: 900; margin-top: 6px;">سوخت و ساز و کالری شخصی‌سازی‌شده تو</h2>
-    </div>
-
     <!-- summary -->
     <div class="summary-card">
       <div class="summary-overline">خلاصه وضعیت تو</div>
@@ -915,12 +912,11 @@
     <!-- CTA -->
     <div class="cta-card">
       <div class="cta-icon">💬</div>
-      <div class="cta-title">می‌خوای باهام کار کنی<br>و برنامه بگیری؟</div>
-      <div class="cta-sub">بهم پیام بده</div>
+      <div class="cta-title">می‌خوای برنامه‌ریزیتو<br>من انجام بدم؟</div>
+      <div class="cta-sub">تلگرام بهم پیام بده</div>
       <button class="btn-cta" onclick="sendMessage()">📲 بهم پیام بده ←</button>
     </div>
 
-    <button class="btn-back" onclick="location.reload()" style="width: 100%; margin-top: 20px">شروع مجدد تست</button>
   </div>
 
   <!-- Fallback screen -->
@@ -980,7 +976,7 @@ const TRANSFORMATION_IMAGES = {
 // ==========================================
 // تنظیمات اصلی فرم
 // ==========================================
-const FORM_NAME = "BMR-TEST"; // 👈 نام تب در گوگل شیت
+const FORM_NAME = "Metabolism"; // 👈 نام تب در گوگل شیت
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; // 👈 لینک اسکریپت هوشمند رو بذار اینجا
 const TELEGRAM_ABROAD = "https://t.me/Alichiacademy3"; // جایگزین واتساپ شد
 
@@ -1337,8 +1333,10 @@ function handleSubmit() {
     "سابقه تمرین": EXP_FA[data.experience] || data.experience,
     "هدف": data.goal === 'fatloss' ? 'چربی‌سوزی' : 'عضله‌سازی',
     "توده بدون چربی (LBM)": Math.round(calcLBM()),
-    "سوخت و ساز پایه (BMR)": Math.round(calcBMR()),
-    "نیاز کالری روزانه (TDEE)": Math.round(calcTDEE())
+    "کالری نگهدارنده": Math.round(calcMaintenance()),
+    "کالری سرعت متعادل": calcPlan(data.goal === 'fatloss' ? 'lose' : 'gain', 'slow').cal,
+    "کالری سرعت بالا": calcPlan(data.goal === 'fatloss' ? 'lose' : 'gain', 'fast').cal,
+    "پروتئین روزانه": getProteinRange(data.goal === 'fatloss' ? 'fat' : 'hyp').mid
   });
 
   document.getElementById('step8').classList.remove('active');
@@ -1425,31 +1423,53 @@ function doRedirect(dest, url){
 }
 
 /* ════════════════ CALCULATIONS ════════════════ */
+/* کالری نگهدارنده = وزن × ۲۶ */
+const KCAL_PER_KG = 7700;
+const CAL_FLOOR   = { male: 1000, female: 900 };
 
-function getFatLossPerWeek() {
-  return data.weight * 0.01;
+function calcMaintenance() {
+  return data.weight * 26;
 }
 
-function getFatLossKg(fatLossWeeks) {
-  const perWeek = getFatLossPerWeek();
-  const totalLoss = perWeek * fatLossWeeks;
-  const currentFatKg = data.weight * (data.currentFat / 100);
-  return Math.min(totalLoss, currentFatKg * 0.4);
+/* شیب خطی بین ۶۰ و ۱۰۰ کیلو */
+function lerpByWeight(a, b) {
+  const t = Math.min(1, Math.max(0, (data.weight - 60) / 40));
+  return a + (b - a) * t;
 }
 
-function getMuscleGainPerWeek() {
-  if (!isHighFat()) {
-    return 0.5;
+/* افزایش وزن: وزن‌محور (سبک‌تر = سریع‌تر) */
+function gainPace(speed) {
+  return speed === 'slow' ? lerpByWeight(0.005, 0.0025)
+                          : lerpByWeight(0.01,  0.005);
+}
+
+/* speed = 'slow' | 'fast' , dir = 'lose' | 'gain' */
+function calcPlan(speed, dir) {
+  const maint = calcMaintenance();
+  let cal, floored = false;
+
+  if (dir === 'gain') {
+    const weekKg = data.weight * gainPace(speed);
+    cal = maint + (weekKg * KCAL_PER_KG) / 7;
+  } else {
+    const pace   = (speed === 'slow') ? 0.005 : 0.01;
+    const weekKg = data.weight * pace;
+    cal = maint - (weekKg * KCAL_PER_KG) / 7;
+    const floor = CAL_FLOOR[data.gender] || CAL_FLOOR.male;
+    if (cal < floor) { cal = floor; floored = true; }
   }
-  return data.gender === 'female' ? 0.25 : 0.375;
-}
 
-function getMuscleGainKg(muscleWeeks) {
-  return getMuscleGainPerWeek() * muscleWeeks;
-}
+  cal = Math.round(cal / 10) * 10;
 
-function isLeanMuscleBuilding() {
-  return !isHighFat();
+  /* کاهش/افزایش واقعی از روی کسری واقعی محاسبه می‌شود */
+  const realWeekKg = Math.abs(cal - maint) * 7 / KCAL_PER_KG;
+
+  return {
+    cal:     cal,
+    weekG:   Math.round(realWeekKg * 1000),
+    monthKg: Math.round(realWeekKg * 4.33 * 10) / 10,
+    floored: floored
+  };
 }
 
 function calcLBM(){
@@ -1515,100 +1535,114 @@ function buildCarousel() {
   });
 }
 
-function getActivityMultiplier() {
-  const s = data.sessions;
-  if (s <= 2) return 1.375;
-  if (s <= 4) return 1.55;
-  if (s <= 6) return 1.725;
-  return 1.9;
-}
-
-function calcBMR() {
-  return 370 + (21.6 * calcLBM());
-}
-function calcTDEE() {
-  return calcBMR() * getActivityMultiplier();
-}
-
-function getMuscleCalorieRange() {
-  const tdee = calcTDEE();
-  const isLean = isLeanMuscleBuilding();
-  const lowPct = isLean ? 1.10 : 1.05;
-  const highPct = isLean ? 1.15 : 1.10;
-  return { low: Math.round(tdee * lowPct), high: Math.round(tdee * highPct), tdee: Math.round(tdee) };
-}
-
-function getFatLossCalorieRange() {
-  const tdee = calcTDEE();
-  return { low: Math.round(tdee * 0.75), high: Math.round(tdee * 0.85), tdee: Math.round(tdee) };
-}
-
 /* ════════════════ BUILD RESULT ════════════════ */
 function buildResult(name) {
-  const lbm = calcLBM();
-  const bmr = Math.round(calcBMR());
-  const tdee = Math.round(calcTDEE());
+  const maint     = Math.round(calcMaintenance() / 10) * 10;
   const isFatLoss = data.goal === 'fatloss';
+  const dir       = isFatLoss ? 'lose' : 'gain';
 
-  const muscleCal = getMuscleCalorieRange();
-  const fatCal = getFatLossCalorieRange();
-  const proteinHyp = getProteinRange('hyp');
-  const proteinFat = getProteinRange('fat');
+  const slow    = calcPlan('slow', dir);
+  const fast    = calcPlan('fast', dir);
+  const protein = getProteinRange(isFatLoss ? 'fat' : 'hyp');
+  const tone    = isFatLoss ? 'fat' : 'hyp';
+  const phaseFa = isFatLoss ? 'چربی‌سوزی' : 'عضله‌سازی';
 
-  const muscleWeekKg = getMuscleGainPerWeek();
-  const muscleMonthKg = Math.round(muscleWeekKg * 4.33 * 10) / 10;
-  const fatWeekKg = getFatLossPerWeek();
-  const fatMonthKg = Math.round(fatWeekKg * 4.33 * 10) / 10;
-  const muscleWeekG = Math.round(muscleWeekKg * 1000);
-  const fatWeekG = Math.round(fatWeekKg * 1000);
+  /* اگر کف کالری هر دو کارت را یکی کرده باشد، فقط یک کارت نشان بده */
+  const single = (slow.cal === fast.cal);
 
   document.getElementById('rmName').textContent = 'سلام ' + name + '!';
   document.getElementById('rmTagline').textContent = 'بر اساس داده‌های شخصی‌ت محاسبه شده';
 
   document.getElementById('summaryText').innerHTML =
-    `با وزن <strong>${toFa(data.weight)} کیلو</strong>، درصد چربی <strong>${toFa(data.currentFat)}٪</strong> و <strong>${toFa(data.sessions)} جلسه</strong> تمرین در هفته، سوخت‌وساز پایه‌ت <strong>${toFa(bmr)} کالری</strong> و نیاز کالری روزانه‌ت برای حفظ وزن فعلی <strong>${toFa(tdee)} کالری</strong>ه. حالا بازه کالری هر فاز رو ببین:`;
+    `با وزن <strong>${toFa(data.weight)} کیلو</strong>، کالری روزانه‌ای که برای <strong>حفظ وزن فعلیت</strong> لازم داری حدود <strong>${toFa(maint)} کالریه</strong>.<br><br>` +
+    (single
+      ? `با توجه به وزنت، این تنها مسیر اصولی برای ${phaseFa} توئه:`
+      : `حالا برای ${phaseFa} دو مسیر اصولی پیش روته:`);
 
   const container = document.getElementById('proteinCards');
   container.innerHTML = '';
 
-  const muscleCardHTML = `
-    <div class="pc-phase hyp">💪 دوره عضله‌سازی</div>
+  /* ── کارت ۱: سرعت متعادل ── */
+  const card1 = document.createElement('div');
+  card1.className = 'protein-card highlight' + (single ? ' only' : '');
+  card1.innerHTML = isFatLoss ? `
+    <div class="pc-phase fat">🔥 چربی‌سوزی با سرعت متعادل</div>
     <div class="pc-body-text">
-      بیشترین مقداری که می‌تونی عضله بسازی <strong>بدون اینکه چربی بیاری</strong>، با خوردن:
+      امن‌ترین مسیر برای از دست دادن چربی <strong>بدون اینکه عضله‌ت رو از دست بدی</strong>. با خوردن:
     </div>
-    <div class="pc-amount hyp">${toFa(muscleCal.low)} تا ${toFa(muscleCal.high)}</div>
+    <div class="pc-amount fat">${toFa(slow.cal)}</div>
     <div class="pc-unit">کالری در روز</div>
     <div class="pc-monthly">
-      <div class="pc-monthly-label">یعنی چقدر می‌تونی در ماه عضله اضافه کنی؟</div>
-      <div class="pc-monthly-val hyp">${toFa(muscleMonthKg)} کیلو</div>
-      <div class="pc-monthly-sub">وزن با کیفیت در ماه، با کمترین مقدار چربی (${toFa(muscleWeekG)} گرم در هفته)</div>
+      <div class="pc-monthly-label">هفته‌ای چقدر کم می‌کنی؟</div>
+      <div class="pc-monthly-val fat">${toFa(slow.weekG)} گرم</div>
+      <div class="pc-monthly-sub">یعنی ${toFa(slow.monthKg)} کیلو در ماه</div>
     </div>
-    <div class="pc-range hyp">🥩 تو دوره عضله‌سازی با توجه به اطلاعاتت روزانه باید ${toFa(proteinHyp.mid)} گرم پروتئین بخوری</div>
-  `;
-  const fatCardHTML = `
-    <div class="pc-phase fat">🔥 دوره چربی‌سوزی</div>
+    <div class="pc-range fat">💡 این سرعت رو راحت‌تر می‌تونی ادامه بدی و کیفیت تمریناتت هم پایین نمیاد.</div>
+  ` : `
+    <div class="pc-phase hyp">💪 عضله‌سازی با سرعت متعادل</div>
     <div class="pc-body-text">
-      برای بیشترین چربی‌سوزی <strong>بدون ریسک از دست دادن عضله و شل شدن پوست</strong>، باید بین:
+      تمیزترین مسیر برای اضافه کردن وزن <strong>با کمترین مقدار چربی</strong>. با خوردن:
     </div>
-    <div class="pc-amount fat">${toFa(fatCal.low)} تا ${toFa(fatCal.high)}</div>
-    <div class="pc-unit">کالری در روز استفاده کنی</div>
+    <div class="pc-amount hyp">${toFa(slow.cal)}</div>
+    <div class="pc-unit">کالری در روز</div>
     <div class="pc-monthly">
-      <div class="pc-monthly-label">یعنی چقدر می‌تونی در ماه کم کنی؟</div>
-      <div class="pc-monthly-val fat">${toFa(fatMonthKg)} کیلو</div>
-      <div class="pc-monthly-sub">چربی در ماه، بدون ریسک عضله‌سوزی (${toFa(fatWeekG)} گرم در هفته)</div>
+      <div class="pc-monthly-label">هفته‌ای چقدر اضافه می‌کنی؟</div>
+      <div class="pc-monthly-val hyp">${toFa(slow.weekG)} گرم</div>
+      <div class="pc-monthly-sub">یعنی ${toFa(slow.monthKg)} کیلو در ماه</div>
     </div>
-    <div class="pc-range fat">🥩 تو دوره چربی‌سوزی با توجه به اطلاعاتت روزانه باید ${toFa(proteinFat.mid)} گرم پروتئین بخوری</div>
+    <div class="pc-range hyp">💡 آروم‌تر پیش می‌ری، ولی تقریباً همه‌ی وزنی که اضافه می‌کنی با کیفیته.</div>
   `;
-
-  const card1 = document.createElement('div');
-  card1.className = 'protein-card highlight';
-  card1.innerHTML = isFatLoss ? fatCardHTML : muscleCardHTML;
   container.appendChild(card1);
 
-  const card2 = document.createElement('div');
-  card2.className = 'protein-card';
-  card2.innerHTML = isFatLoss ? muscleCardHTML : fatCardHTML;
-  container.appendChild(card2);
+  /* ── کارت ۲: حداکثر سرعت مجاز ── */
+  if (!single) {
+    const card2 = document.createElement('div');
+    card2.className = 'protein-card alt';
+    card2.innerHTML = isFatLoss ? `
+      <div class="pc-phase fat">⚡ چربی‌سوزی با سرعت بالا</div>
+      <div class="pc-body-text">
+        اگه عجله داری، این <strong>حداکثر سرعتیه که هنوز اصولیه</strong>. با خوردن:
+      </div>
+      <div class="pc-amount fat">${toFa(fast.cal)}</div>
+      <div class="pc-unit">کالری در روز</div>
+      <div class="pc-monthly">
+        <div class="pc-monthly-label">هفته‌ای چقدر کم می‌کنی؟</div>
+        <div class="pc-monthly-val fat">${toFa(fast.weekG)} گرم</div>
+        <div class="pc-monthly-sub">یعنی ${toFa(fast.monthKg)} کیلو در ماه</div>
+      </div>
+      <div class="pc-range fat">⚠️ سریع‌تر از این نرو. کاهش وزن تندتر باعث <strong>عضله‌سوزی</strong> می‌شه و عوارضی مثل <strong>شل شدن پوست، ریزش مو و افت انرژی</strong> رو به دنبال داره.</div>
+    ` : `
+      <div class="pc-phase hyp">⚡ افزایش وزن با سرعت بالا</div>
+      <div class="pc-body-text">
+        اگه می‌خوای سریع‌تر پیش بری، این <strong>بیشترین سرعتیه که هنوز منطقیه</strong>. با خوردن:
+      </div>
+      <div class="pc-amount hyp">${toFa(fast.cal)}</div>
+      <div class="pc-unit">کالری در روز</div>
+      <div class="pc-monthly">
+        <div class="pc-monthly-label">هفته‌ای چقدر اضافه می‌کنی؟</div>
+        <div class="pc-monthly-val hyp">${toFa(fast.weekG)} گرم</div>
+        <div class="pc-monthly-sub">یعنی ${toFa(fast.monthKg)} کیلو در ماه</div>
+      </div>
+      <div class="pc-range hyp">⚠️ بیشتر از این نخور. کالری اضافه‌تر <strong>عضله‌ی بیشتری نمی‌سازه</strong> — فقط سرعت چربی آوردنت رو بالا می‌بره.</div>
+    `;
+    container.appendChild(card2);
+  }
+
+  /* ── کارت ۳: پروتئین ── */
+  const card3 = document.createElement('div');
+  card3.className = 'protein-card';
+  card3.innerHTML = `
+    <div class="pc-phase ${tone}">🥩 پروتئین روزانه‌ت</div>
+    <div class="pc-body-text">
+      با توجه به <strong>سن و درصد چربی تو</strong> (و نه کس دیگه)، تو دوره ${phaseFa} باید روزانه:
+    </div>
+    <div class="pc-amount ${tone}">${toFa(protein.mid)}</div>
+    <div class="pc-unit">گرم پروتئین دریافت کنی</div>
+    <div class="pc-range ${tone}">${isFatLoss
+      ? 'تو کسری کالری، پروتئین کافی مهم‌ترین چیزیه که جلوی عضله‌سوزی رو می‌گیره.'
+      : 'بدون پروتئین کافی، کالری اضافه‌ای که می‌خوری بیشترش تبدیل به چربی می‌شه.'}</div>
+  `;
+  container.appendChild(card3);
 }
 /* ════════════════ INIT ════════════════ */
 ['height','weight'].forEach(id=>{

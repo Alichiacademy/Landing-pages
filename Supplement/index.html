@@ -251,6 +251,7 @@
       <div class="error-msg" id="err-name">نام رو وارد کن</div>
     </div>
     <div class="input-wrap">
+      <div class="field-hint" style="text-align:right;margin-bottom:10px;padding:10px 12px;border:1px solid #fbbf24;border-radius:10px;background:rgba(251,191,36,.12);color:#fbbf24;font-size:13px;font-weight:800;">🌍 خارج از ایران هستی؟ پیش‌شماره‌ی خودت رو وارد کن.</div>
       <div class="phone-row">
         <select id="input-country">
           <option value="IR" selected>🇮🇷 ایران +98</option>
@@ -271,7 +272,7 @@
         <input type="tel" id="input-phone" placeholder="9123456789" autocomplete="tel" inputmode="tel" dir="ltr" />
       </div>
       <div class="error-msg" id="err-phone">شماره معتبر وارد کن</div>
-      <div class="field-hint" id="phone-hint">شماره را بدون صفر اول وارد کن.</div>
+      <div class="field-hint" id="phone-hint">شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن؛ پیش‌شماره انتخاب‌شده خودکار اضافه می‌شود.</div>
     </div>
     <button class="btn-primary" onclick="handleSubmit()">دریافت لیست مکمل‌ها ←</button>
   </div>
@@ -652,7 +653,11 @@ function validatePhone(raw,cc){
   const cl=cleanPhone(raw);
   if(!cl)return{valid:false,message:"شماره موبایل رو وارد کن"};
   const rule=PHONE_RULES[cc];
-  if(!rule){const g=cl.replace(/^\+|^00/,"").replace(/^0+/,"");return /^\d{8,15}$/.test(g)?{valid:true,countryCode:"OTHER",national:g,e164:"+"+g,isIranPhone:g.startsWith("98")}:{valid:false,message:"شماره بین‌المللی معتبر وارد کن"};}
+  if(!rule){
+    if(!/^(?:\+|00)/.test(cl))return{valid:false,message:"برای کشور دیگر، شماره را با پیش‌شماره کامل وارد کن؛ مثل +4915123456789"};
+    const g=cl.replace(/^(?:\+|00)/,"").replace(/^0+/,"");
+    return /^\d{8,15}$/.test(g)?{valid:true,countryCode:"OTHER",national:g,e164:"+"+g,isIranPhone:g.startsWith("98")}:{valid:false,message:"شماره بین‌المللی معتبر وارد کن؛ مثل +4915123456789"};
+  }
   const nat=stripDial(cl,rule);
   if(nat.length<rule.min||nat.length>rule.max||!rule.mobile.test(nat))return{valid:false,message:"شماره معتبر وارد کن؛ مثلاً: "+rule.sample};
   return{valid:true,countryCode:cc,national:nat,e164:"+"+rule.dial+nat,isIranPhone:cc==="IR"};
@@ -881,7 +886,9 @@ function syncPlaceholder(){
   const cc=document.getElementById("input-country").value;
   const rule=PHONE_RULES[cc];
   document.getElementById("input-phone").placeholder=rule?rule.sample:"+989123456789";
-  document.getElementById("phone-hint").textContent=rule?"شماره را بدون صفر اول وارد کن.":"شماره بین‌المللی کامل وارد کن؛ مثل +989123456789";
+  document.getElementById("phone-hint").textContent=rule
+    ? `پیش‌شماره +${rule.dial} خودکار اضافه می‌شود؛ شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن.`
+    : "شماره را با پیش‌شماره کامل کشور وارد کن؛ مثل +4915123456789. ارقام فارسی و انگلیسی پذیرفته می‌شوند.";
 }
 
 document.getElementById("input-country").addEventListener("change",syncPlaceholder);

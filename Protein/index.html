@@ -534,6 +534,7 @@ input[type=range]::-webkit-slider-thumb:active{transform:scale(1.2)}
       <div class="err-field" id="errName">اسمت رو وارد کن</div>
     </div>
     <div class="input-wrap">
+      <div class="field-hint" style="text-align:right;margin-bottom:10px;padding:10px 12px;border:1px solid #fbbf24;border-radius:10px;background:rgba(251,191,36,.12);color:#fbbf24;font-size:13px;font-weight:800;">🌍 خارج از ایران هستی؟ پیش‌شماره‌ی خودت رو وارد کن.</div>
       <div class="phone-row">
         <select id="inputCountry" onchange="syncPh()">
           <option value="IR">🇮🇷 +98</option>
@@ -549,10 +550,11 @@ input[type=range]::-webkit-slider-thumb:active{transform:scale(1.2)}
           <option value="NL">🇳🇱 +31</option>
           <option value="SE">🇸🇪 +46</option>
           <option value="AU">🇦🇺 +61</option>
+          <option value="OTHER">🌍 کشور دیگر</option>
         </select>
-        <input type="tel" id="inputPhone" placeholder="9123456789" inputmode="tel">
+        <input type="tel" id="inputPhone" placeholder="9123456789" inputmode="tel" autocomplete="tel" dir="ltr">
       </div>
-      <div class="field-hint" id="phoneHint">شماره را بدون صفر اول وارد کن.</div>
+      <div class="field-hint" id="phoneHint">شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن؛ پیش‌شماره انتخاب‌شده خودکار اضافه می‌شود.</div>
       <div class="err-field" id="errPhone">شماره موبایل رو وارد کن</div>
     </div>
     <button class="btn-primary" onclick="handleSubmit()">دریافت نتیجه ←</button>
@@ -625,11 +627,11 @@ function getTelegramSupport() {
   if (iranHour === 24) iranHour = 0;
 
   let account;
-  // اکانت 1: ۶ تا ۱۰ صبح | ۱۶ تا ۲۰ عصر
+  // اکانت Alichiacademy2: ساعت ۰۳ تا ۱۰ و ۱۶ تا ۲۲ به وقت ایران
   if ((iranHour >= 3 && iranHour < 10) || (iranHour >= 16 && iranHour < 22)) {
     account = "Alichiacademy2";
   } else {
-    // اکانت 2: بقیه ساعات (۱۰-۱۶ و ۲۰ تا ۶ صبح)
+    // اکانت Alichiacademy: باقی ساعات
     account = "Alichiacademy";
   }
   
@@ -913,10 +915,14 @@ function validatePh(raw,cc){
   const cl=cleanPh(raw);
   if(!cl)return{valid:false,message:'شماره موبایل رو وارد کن'};
   const rule=PHONE_RULES[cc];
-  if(!rule){const g=cl.replace(/^\+|^00/,'').replace(/^0+/,'');return /^\d{8,15}$/.test(g)?{valid:true,national:g,e164:'+'+g,isIranPhone:g.startsWith('98')}:{valid:false,message:'شماره بین‌المللی معتبر وارد کن'};}
+  if(!rule){
+    if(!/^(?:\+|00)/.test(cl))return{valid:false,message:'برای کشور دیگر، شماره را با پیش‌شماره کامل وارد کن؛ مثل +4915123456789'};
+    const g=cl.replace(/^(?:\+|00)/,'').replace(/^0+/,'');
+    return /^\d{8,15}$/.test(g)?{valid:true,countryCode:'OTHER',national:g,e164:'+'+g,isIranPhone:g.startsWith('98')}:{valid:false,message:'شماره بین‌المللی معتبر وارد کن؛ مثل +4915123456789'};
+  }
   const nat=stripDial(cl,rule);
   if(nat.length<rule.min||nat.length>rule.max||!rule.mobile.test(nat))return{valid:false,message:'شماره معتبر وارد کن؛ مثلاً: '+rule.sample};
-  return{valid:true,national:nat,e164:'+'+rule.dial+nat,isIranPhone:cc==='IR'};
+  return{valid:true,countryCode:cc,national:nat,e164:'+'+rule.dial+nat,isIranPhone:cc==='IR'};
 }
 
 function getTimezone(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){return null}}
@@ -1025,7 +1031,9 @@ function syncPh(){
   const cc=document.getElementById('inputCountry').value;
   const rule=PHONE_RULES[cc];
   document.getElementById('inputPhone').placeholder=rule?rule.sample:'+989123456789';
-  document.getElementById('phoneHint').textContent=rule?'شماره را بدون صفر اول وارد کن.':'شماره بین‌المللی کامل وارد کن؛ مثل +989123456789';
+  document.getElementById('phoneHint').textContent=rule
+    ? `پیش‌شماره +${rule.dial} خودکار اضافه می‌شود؛ شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن.`
+    : 'شماره را با پیش‌شماره کامل کشور وارد کن؛ مثل +4915123456789. ارقام فارسی و انگلیسی پذیرفته می‌شوند.';
 }
 
 document.getElementById('inputPhone').addEventListener('input',e=>{
