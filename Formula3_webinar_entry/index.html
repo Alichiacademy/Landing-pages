@@ -106,7 +106,7 @@
     .time-box span{font-size:.62rem;}
   }
 </style>
-<link rel="stylesheet" href="../webinar-assets/webinar.css?v=20260804-2">
+<link rel="stylesheet" href="../webinar-assets/webinar.css?v=20260804-3">
 </head>
 <body data-page="entry">
 <header class="topbar"><span>علی‌چی آکادمی</span></header>
@@ -129,6 +129,14 @@
         <div class="time-box"><strong id="seconds">۰۰</strong><span>ثانیه</span></div>
       </div>
       <div class="availability-note">فرم دریافت لینک، <strong id="accessTime">نیم ساعت قبل از شروع</strong> فعال می‌شه.</div>
+      <div class="return-address">
+        <p>برای اینکه دوباره به همین صفحه برگردی، آدرس زیر را کپی و نگه‌داری کن.</p>
+        <div class="return-address-row">
+          <input id="returnPageUrl" type="text" readonly aria-label="آدرس صفحه ورود وبینار">
+          <button id="copyReturnPageUrl" type="button">کپی آدرس</button>
+        </div>
+        <p class="copy-status" id="copyReturnPageStatus" aria-live="polite"></p>
+      </div>
     </section>
 
     <section class="card hidden" id="accessCard">
@@ -386,6 +394,6 @@
     countdownTimer = setInterval(updateCountdown, 1000);
   }
 </script>
-<script src="../webinar-assets/webinar-20260804-2.js"></script>
+<script src="../webinar-assets/webinar-20260804-3.js"></script>
 </body>
 </html>

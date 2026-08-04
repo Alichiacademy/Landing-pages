@@ -2,6 +2,7 @@
   "use strict";
 
   const API_BASE = "https://apialichi.liara.run/api/v1/public/landing";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec";
   const WEBINAR_SLUG = "formula-3";
   const pageType = document.body.dataset.page;
   const timezone = resolveTimezone();
@@ -58,6 +59,18 @@
       utm_medium: params.get("utm_medium") || null,
       utm_campaign: params.get("utm_campaign") || null
     };
+  }
+
+  function sourceLabel() {
+    return source.source_code || source.utm_source || "بدون تگ / ارگانیک";
+  }
+
+  function browserRegion() {
+    for (const language of navigator.languages || [navigator.language || ""]) {
+      const match = String(language).toUpperCase().match(/-([A-Z]{2})$/);
+      if (match) return match[1];
+    }
+    return "نامشخص";
   }
 
   function randomToken() {
@@ -187,7 +200,37 @@
     if (!rule && (!/^\d{1,4}$/.test(dial) || !/^\d{6,14}$/.test(digits))) {
       return { valid: false, message: "پیش‌شماره و شماره بین‌المللی را بررسی کن." };
     }
-    return { valid: true, raw: digits };
+    return {
+      valid: true,
+      raw: digits,
+      e164: "+" + dial + digits
+    };
+  }
+
+  function saveToSheet(formName, fields) {
+    const payload = {
+      formName: formName,
+      ...fields,
+      "منبع (Source)": sourceLabel(),
+      "منطقه زمانی": timezone || "نامشخص",
+      "ریجن مرورگر": browserRegion(),
+      "آدرس صفحه": window.location.href
+    };
+    try {
+      const request = fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).catch(function () {});
+      const timeout = new Promise(function (resolve) {
+        window.setTimeout(resolve, 2500);
+      });
+      return Promise.race([request, timeout]);
+    } catch (_) {
+      return Promise.resolve();
+    }
   }
 
   async function api(path, payload) {
@@ -332,9 +375,33 @@
           fingerprint: identity.fingerprint,
           ...source
         });
+        await saveToSheet("Formula3_webinar", {
+          "نام": fullName,
+          "شماره تماس": values.normalized.e164,
+          "کشور": values.country,
+          "وضعیت": result.status === "registered"
+            ? "ثبت‌نام وبینار فرمول ۳"
+            : result.status === "iran_only"
+              ? "خارج از ایران"
+              : "ظرفیت تکمیل",
+          "مقصد": result.status === "registered"
+            ? "نمایش لینک ورود وبینار"
+            : "عدم نمایش لینک ورود",
+          "دلیل هدایت": result.message || result.status,
+          "سگمنت": result.status,
+          "اثر دستگاه": identity.fingerprint
+        });
         showRegistrationResult(result.status, result.message, result.starts_at);
         form.reset();
       } catch (error) {
+        await saveToSheet("Formula3_webinar", {
+          "نام": fullName,
+          "شماره تماس": values.normalized.e164,
+          "کشور": values.country,
+          "وضعیت": "خطای ثبت در API",
+          "مقصد": "ثبت در شیت",
+          "دلیل هدایت": error.message
+        });
         message.textContent = error.message;
         message.classList.add("err");
       } finally {
@@ -397,13 +464,26 @@
     const form = document.getElementById("accessForm");
     if (!waitingCard || !accessCard || !linkCard || !form) return;
     const phoneValues = enhancePhoneField(form.querySelector("#phone"));
-    const fullnameField = document.getElementById("fullname").closest(".field");
-    fullnameField.style.display = "none";
-    document.getElementById("fullname").required = false;
+    const fullnameInput = document.getElementById("fullname");
+    const returnPageUrl = document.getElementById("returnPageUrl");
+    const copyReturnPageUrl = document.getElementById("copyReturnPageUrl");
+    const copyReturnPageStatus = document.getElementById("copyReturnPageStatus");
 
-    if (timezone && timezone !== "Asia/Tehran") {
-      showEntryDenied("شما برای این وبینار ثبت‌نام نکرده‌اید.");
-      return;
+    if (returnPageUrl) returnPageUrl.value = window.location.href;
+    if (copyReturnPageUrl && returnPageUrl) {
+      copyReturnPageUrl.addEventListener("click", async function () {
+        try {
+          await navigator.clipboard.writeText(returnPageUrl.value);
+          copyReturnPageStatus.textContent = "آدرس صفحه کپی شد.";
+        } catch (_) {
+          returnPageUrl.focus();
+          returnPageUrl.select();
+          const copied = document.execCommand("copy");
+          copyReturnPageStatus.textContent = copied
+            ? "آدرس صفحه کپی شد."
+            : "آدرس را انتخاب و به‌صورت دستی کپی کن.";
+        }
+      });
     }
 
     let config;
@@ -441,8 +521,14 @@
       const values = phoneValues();
       const message = document.getElementById("formMsg");
       const button = document.getElementById("submitBtn");
+      const fullName = fullnameInput.value.trim();
       message.textContent = "";
       message.className = "form-msg";
+      if (fullName.length < 2) {
+        message.textContent = "نام و نام خانوادگی رو کامل وارد کن";
+        message.classList.add("error");
+        return;
+      }
       if (!values.normalized.valid) {
         message.textContent = values.normalized.message;
         message.classList.add("error");
@@ -461,6 +547,20 @@
           fingerprint: identity.fingerprint,
           source_code: source.source_code
         });
+        await saveToSheet("Formula3_webinar_entry", {
+          "نام": fullName,
+          "شماره تماس": values.normalized.e164,
+          "کشور": values.country,
+          "وضعیت": result.status === "granted"
+            ? "دریافت لینک ورود وبینار فرمول ۳"
+            : "عدم دریافت لینک ورود وبینار فرمول ۳",
+          "مقصد": result.status === "granted"
+            ? "لینک اسکای‌روم وبینار"
+            : "عدم نمایش لینک اسکای‌روم",
+          "دلیل هدایت": result.message || result.status,
+          "سگمنت": result.status,
+          "اثر دستگاه": identity.fingerprint
+        });
         if (result.status !== "granted") {
           message.textContent = result.message;
           message.classList.add("error");
@@ -471,6 +571,14 @@
         document.getElementById("joinLink").href = result.webinar_url;
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (error) {
+        await saveToSheet("Formula3_webinar_entry", {
+          "نام": fullName,
+          "شماره تماس": values.normalized.e164,
+          "کشور": values.country,
+          "وضعیت": "خطای بررسی ورود در API",
+          "مقصد": "ثبت در شیت",
+          "دلیل هدایت": error.message
+        });
         message.textContent = error.message;
         message.classList.add("error");
       } finally {

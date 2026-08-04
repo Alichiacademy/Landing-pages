@@ -66,6 +66,64 @@ body[data-page="entry"] .field select:focus {
   margin-top: 12px;
 }
 
+.return-address {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(97, 231, 242, .18);
+  border-radius: 13px;
+  background: rgba(97, 231, 242, .045);
+}
+
+.return-address > p:first-child {
+  color: var(--text-2);
+  font-size: .78rem;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.return-address-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: 10px;
+  direction: ltr;
+}
+
+.return-address-row input {
+  min-width: 0;
+  height: 43px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-deep);
+  color: var(--text-2);
+  padding: 0 11px;
+  font-family: sans-serif;
+  font-size: .72rem;
+  direction: ltr;
+  text-align: left;
+}
+
+.return-address-row button {
+  min-width: 88px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 14px;
+  background: linear-gradient(90deg, var(--cyan-1), var(--cyan-2));
+  color: #04101f;
+  font-family: "Vazirmatn", sans-serif;
+  font-size: .78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.copy-status {
+  min-height: 20px;
+  margin-top: 6px;
+  color: var(--green-1);
+  font-size: .72rem;
+  text-align: center;
+}
+
 body[data-page="registration"] .result-state .success-icon {
   color: var(--gold-1);
   border-color: var(--gold-1);
@@ -94,5 +152,13 @@ body[data-page="entry"] .entry-denied-card {
   body[data-page="registration"] .phone-grid,
   body[data-page="entry"] .phone-grid {
     grid-template-columns: 1fr;
+  }
+
+  .return-address-row {
+    grid-template-columns: 1fr;
+  }
+
+  .return-address-row button {
+    height: 42px;
   }
 }
