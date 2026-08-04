@@ -119,7 +119,13 @@
   }
 
   function enhancePhoneField(phone) {
+    if (!phone) {
+      throw new Error("فیلد شماره موبایل در صفحه پیدا نشد.");
+    }
     const field = phone.closest(".field");
+    if (!field) {
+      throw new Error("ساختار فیلد شماره موبایل معتبر نیست.");
+    }
     const grid = document.createElement("div");
     const country = createCountrySelect();
     const customField = document.createElement("div");
@@ -259,7 +265,9 @@
 
   function initRegistration() {
     const form = document.getElementById("leadForm");
-    const phoneValues = enhancePhoneField(document.getElementById("phone"));
+    if (!form) return;
+    const phoneField = form.querySelector("#phone");
+    const phoneValues = enhancePhoneField(phoneField);
     const formCard = form.closest(".form-card");
     const steps = [
       document.getElementById("step1"),
@@ -281,12 +289,18 @@
     const notice = addNotice(formCard, false);
     notice.classList.add("hidden");
     document.getElementById("residencyQuestion").classList.add("hidden");
-    document.getElementById("goStep2").addEventListener("click", function () {
-      goTo(1);
-    });
-    document.getElementById("backStep1").addEventListener("click", function () {
-      goTo(0);
-    });
+    const goStep2 = document.getElementById("goStep2");
+    const backStep1 = document.getElementById("backStep1");
+    if (goStep2) {
+      goStep2.addEventListener("click", function () {
+        goTo(1);
+      });
+    }
+    if (backStep1) {
+      backStep1.addEventListener("click", function () {
+        goTo(0);
+      });
+    }
     const entryLink = document.getElementById("webinarEntryLink");
     const entryParams = new URLSearchParams();
     Object.entries(source).forEach(function (item) {
@@ -304,7 +318,8 @@
         notice.textContent = "این نوبت وبینار برای افراد داخل ایران برگزار می‌شود. نسخه ویژه ایرانیان خارج از کشور به‌زودی روی پلتفرمی مناسب‌تر برگزار خواهد شد؛ محدودیت پلتفرم‌های داخلی فعلاً امکان ارائه پایدار برای خارج از ایران را نمی‌دهد.";
       }
     };
-    form.querySelector("[data-country]").addEventListener("change", renderLocationNotice);
+    const countryField = form.querySelector("[data-country]");
+    if (countryField) countryField.addEventListener("change", renderLocationNotice);
     renderLocationNotice();
 
     form.addEventListener("submit", async function (event) {
@@ -403,7 +418,8 @@
     const accessCard = document.getElementById("accessCard");
     const linkCard = document.getElementById("linkCard");
     const form = document.getElementById("accessForm");
-    const phoneValues = enhancePhoneField(document.getElementById("phone"));
+    if (!waitingCard || !accessCard || !linkCard || !form) return;
+    const phoneValues = enhancePhoneField(form.querySelector("#phone"));
     const fullnameField = document.getElementById("fullname").closest(".field");
     fullnameField.style.display = "none";
     document.getElementById("fullname").required = false;
@@ -487,6 +503,14 @@
     }, true);
   }
 
-  if (pageType === "registration") initRegistration();
-  if (pageType === "entry") initEntry();
+  function boot() {
+    if (pageType === "registration") initRegistration();
+    if (pageType === "entry") initEntry();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot, { once: true });
+  } else {
+    boot();
+  }
 })();
