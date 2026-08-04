@@ -234,11 +234,31 @@
   }
 
   async function api(path, payload) {
-    const response = await fetch(API_BASE + path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const request = function () {
+      return fetch(API_BASE + path, {
+        method: "POST",
+        mode: "cors",
+        cache: "no-store",
+        credentials: "omit",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    };
+    let response;
+    try {
+      response = await request();
+    } catch (_) {
+      await new Promise(function (resolve) {
+        window.setTimeout(resolve, 700);
+      });
+      try {
+        response = await request();
+      } catch (error) {
+        throw new Error(
+          "ارتباط با سرور ثبت‌نام برقرار نشد. اینترنت یا فیلترشکن را بررسی کن و دوباره تلاش کن."
+        );
+      }
+    }
     const data = await response.json().catch(function () { return {}; });
     if (!response.ok) {
       throw new Error(data.detail || "ارتباط با سرور برقرار نشد. دوباره تلاش کن.");
