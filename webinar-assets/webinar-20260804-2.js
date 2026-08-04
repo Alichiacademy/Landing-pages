@@ -225,13 +225,6 @@
     }).format(new Date(value)) + " به وقت تهران";
   }
 
-  function addNotice(container, error) {
-    const notice = document.createElement("div");
-    notice.className = "webinar-notice" + (error ? " error" : "");
-    container.insertBefore(notice, container.firstChild);
-    return notice;
-  }
-
   function showRegistrationResult(status, message, startsAt) {
     const step3 = document.getElementById("step3");
     const dot3 = document.getElementById("dot3");
@@ -268,7 +261,6 @@
     if (!form) return;
     const phoneField = form.querySelector("#phone");
     const phoneValues = enhancePhoneField(phoneField);
-    const formCard = form.closest(".form-card");
     const steps = [
       document.getElementById("step1"),
       document.getElementById("step2"),
@@ -286,8 +278,6 @@
       dots[index].classList.add("active");
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
-    const notice = addNotice(formCard, false);
-    notice.classList.add("hidden");
     document.getElementById("residencyQuestion").classList.add("hidden");
     const goStep2 = document.getElementById("goStep2");
     const backStep1 = document.getElementById("backStep1");
@@ -308,19 +298,6 @@
     });
     entryLink.href = "../Formula3_webinar_entry/"
       + (entryParams.toString() ? "?" + entryParams.toString() : "");
-
-    const renderLocationNotice = function () {
-      const values = phoneValues();
-      const foreign = Boolean(timezone && timezone !== "Asia/Tehran")
-        || values.country !== "IR";
-      notice.classList.toggle("hidden", !foreign);
-      if (foreign) {
-        notice.textContent = "این نوبت وبینار برای افراد داخل ایران برگزار می‌شود. نسخه ویژه ایرانیان خارج از کشور به‌زودی روی پلتفرمی مناسب‌تر برگزار خواهد شد؛ محدودیت پلتفرم‌های داخلی فعلاً امکان ارائه پایدار برای خارج از ایران را نمی‌دهد.";
-      }
-    };
-    const countryField = form.querySelector("[data-country]");
-    if (countryField) countryField.addEventListener("change", renderLocationNotice);
-    renderLocationNotice();
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
