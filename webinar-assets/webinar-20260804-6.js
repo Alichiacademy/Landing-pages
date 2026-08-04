@@ -342,16 +342,33 @@
   }
 
   function formatDate(value) {
-    return new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    const date = new Date(value);
+    const dateParts = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "Asia/Tehran"
+    }).formatToParts(date);
+    const timeText = new Intl.DateTimeFormat("fa-IR", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
       timeZone: "Asia/Tehran"
-    }).format(new Date(value)) + " به وقت تهران";
+    }).format(date);
+    const values = {};
+    dateParts.forEach(function (part) {
+      if (part.type !== "literal") values[part.type] = part.value;
+    });
+    return [
+      values.weekday,
+      "،",
+      values.day,
+      values.month,
+      values.year,
+      "ساعت",
+      timeText
+    ].filter(Boolean).join(" ").replace(" ،", "،") + " به وقت تهران";
   }
 
   function showRegistrationResult(status, message, startsAt) {
@@ -375,7 +392,7 @@
       subtitle.textContent = message;
       linkSection.style.display = "";
       const reminder = linkSection.querySelector(".reminder-card");
-      reminder.innerHTML = "وبینار <b>" + formatDate(startsAt) + "</b> شروع می‌شه. لینک ورود از نیم ساعت قبل فعال می‌شه.";
+      reminder.innerHTML = "وبینار <b>" + formatDate(startsAt) + "</b> شروع می‌شه و لینک ورود از نیم ساعت قبل فعال می‌شه.";
     } else {
       icon.textContent = "!";
       title.textContent = status === "capacity_full" ? "ظرفیت تکمیل شده" : "اطلاعیه وبینار";
