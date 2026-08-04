@@ -392,11 +392,9 @@
 
     if (status === "registered") {
       icon.textContent = "✓";
-      title.textContent = "ثبت‌نامت با موفقیت انجام شد";
-      subtitle.textContent = message;
+      title.textContent = "بهت تبریک می‌گم، ثبت‌نامت انجام شد.";
+      subtitle.textContent = "";
       linkSection.style.display = "";
-      const reminder = linkSection.querySelector(".reminder-card");
-      reminder.innerHTML = "وبینار <b>" + formatDate(startsAt) + "</b> شروع می‌شه و لینک ورود از ۵ دقیقه قبل فعال می‌شه.";
     } else {
       icon.textContent = "!";
       title.textContent = status === "capacity_full" ? "ظرفیت تکمیل شده" : "اطلاعیه وبینار";
@@ -446,8 +444,33 @@
     Object.entries(source).forEach(function (item) {
       if (item[1]) entryParams.set(item[0], item[1]);
     });
-    entryLink.href = "../Formula3_webinar_entry/"
+    const entryPath = "../Formula3_webinar_entry/"
       + (entryParams.toString() ? "?" + entryParams.toString() : "");
+    if (entryLink) entryLink.href = entryPath;
+    const entryUrlInput = document.getElementById("webinarEntryUrl");
+    const copyEntryUrlButton = document.getElementById("copyWebinarEntryUrl");
+    const copyEntryUrlStatus = document.getElementById("copyWebinarEntryStatus");
+    if (entryUrlInput) {
+      const entryUrl = new URL(entryPath, window.location.href);
+      entryUrl.searchParams.delete("source_code");
+      entryUrl.searchParams.set("source", "site");
+      entryUrlInput.value = entryUrl.toString();
+    }
+    if (copyEntryUrlButton && entryUrlInput) {
+      copyEntryUrlButton.addEventListener("click", async function () {
+        try {
+          await navigator.clipboard.writeText(entryUrlInput.value);
+          copyEntryUrlStatus.textContent = "لینک ورود کپی شد.";
+        } catch (_) {
+          entryUrlInput.focus();
+          entryUrlInput.select();
+          const copied = document.execCommand("copy");
+          copyEntryUrlStatus.textContent = copied
+            ? "لینک ورود کپی شد."
+            : "لینک را انتخاب و به‌صورت دستی کپی کن.";
+        }
+      });
+    }
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
@@ -587,27 +610,6 @@
     if (!waitingCard || !accessCard || !linkCard || !form) return;
     const phoneValues = enhancePhoneField(form.querySelector("#phone"));
     const fullnameInput = document.getElementById("fullname");
-    const returnPageUrl = document.getElementById("returnPageUrl");
-    const copyReturnPageUrl = document.getElementById("copyReturnPageUrl");
-    const copyReturnPageStatus = document.getElementById("copyReturnPageStatus");
-
-    if (returnPageUrl) returnPageUrl.value = window.location.href;
-    if (copyReturnPageUrl && returnPageUrl) {
-      copyReturnPageUrl.addEventListener("click", async function () {
-        try {
-          await navigator.clipboard.writeText(returnPageUrl.value);
-          copyReturnPageStatus.textContent = "آدرس صفحه کپی شد.";
-        } catch (_) {
-          returnPageUrl.focus();
-          returnPageUrl.select();
-          const copied = document.execCommand("copy");
-          copyReturnPageStatus.textContent = copied
-            ? "آدرس صفحه کپی شد."
-            : "آدرس را انتخاب و به‌صورت دستی کپی کن.";
-        }
-      });
-    }
-
     let config;
     try {
       config = await getConfig();
@@ -618,14 +620,6 @@
       };
     }
     document.getElementById("eventDate").textContent = formatDate(config.starts_at);
-    document.getElementById("accessTime").textContent =
-      new Intl.DateTimeFormat("fa-IR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: "Asia/Tehran"
-      }).format(new Date(config.access_opens_at));
-
     const render = function () {
       const remaining = setCountdown(config.access_opens_at);
       waitingCard.classList.toggle("hidden", remaining === 0);

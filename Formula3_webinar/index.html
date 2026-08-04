@@ -173,7 +173,7 @@
   footer{border-top:1px solid var(--line); padding:20px 0; text-align:center;}
   footer p{font-size:0.8rem; color:var(--text-2);}
 </style>
-<link rel="stylesheet" href="../webinar-assets/webinar.css?v=20260804-3">
+<link rel="stylesheet" href="../webinar-assets/webinar.css?v=20260804-4">
 </head>
 <body data-page="registration">
 
@@ -246,15 +246,21 @@
   <section class="step" id="step3">
     <div class="success-card">
       <div class="success-icon">✓</div>
-      <h2>ثبت‌نامت با موفقیت انجام شد</h2>
-      <p id="step3Subtitle">جات توی کلاس رایگان فرمول ۳ رزرو شد. از صفحه ورود، زمان شروع و لینک کلاس رو ببین.</p>
+      <h2>بهت تبریک می‌گم، ثبت‌نامت انجام شد.</h2>
+      <p id="step3Subtitle"></p>
 
       <div id="linkSection">
-      <div class="reminder-card">
-        وبینار <b>جمعه، ۱۶ مرداد ۱۴۰۵ ساعت ۱۴:۰۰</b> شروع می‌شه و لینک ورود از ۵ دقیقه قبل فعال می‌شه.
-      </div>
-
-      <a class="join-btn" id="webinarEntryLink" href="../Formula3_webinar_entry/">رفتن به صفحه ورود وبینار</a>
+        <div class="success-instructions">
+          <p><strong>۱.</strong> همین الان آلارم گوشیت رو برای ساعت ۱۴ روز جمعه تنظیم کن.</p>
+          <p><strong>۲.</strong> لینک ورود به وبینار رو این پایین برات گذاشتم. همین الان لینک رو کپی و ذخیره کن و رأس ساعت ۱۴ روز جمعه باهاش وارد وبینار شو.</p>
+        </div>
+        <div class="return-address registration-entry-address">
+          <div class="return-address-row">
+            <input id="webinarEntryUrl" type="text" readonly aria-label="لینک ورود به وبینار">
+            <button id="copyWebinarEntryUrl" type="button">کپی لینک</button>
+          </div>
+          <p class="copy-status" id="copyWebinarEntryStatus" aria-live="polite"></p>
+        </div>
       </div>
     </div>
   </section>
@@ -497,7 +503,7 @@
   if(SOURCE_LABEL && SOURCE_LABEL !== "بدون تگ / ارگانیک") entryParams.set('source', SOURCE_LABEL);
   webinarEntryLink.href = '../Formula3_webinar_entry/' + (entryParams.toString() ? '?' + entryParams.toString() : '');
 </script>
-<script src="../webinar-assets/webinar-20260804-9.js"></script>
+<script src="../webinar-assets/webinar-20260804-10.js"></script>
 
 </body>
 </html>

@@ -124,6 +124,75 @@ body[data-page="entry"] .field select:focus {
   text-align: center;
 }
 
+.success-instructions {
+  margin-top: 18px;
+  display: grid;
+  gap: 12px;
+  text-align: right;
+}
+
+.success-instructions p {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(97, 231, 242, .2);
+  border-radius: 14px;
+  color: var(--text-1);
+  background: rgba(97, 231, 242, .055);
+  font-size: .9rem;
+  line-height: 2;
+}
+
+.success-instructions strong {
+  color: var(--cyan-1);
+}
+
+.registration-entry-address {
+  margin-top: 14px;
+}
+
+.vpn-warning {
+  margin: 12px 0 16px;
+  padding: 13px 15px;
+  border: 1px solid rgba(242, 139, 139, .55);
+  border-radius: 13px;
+  color: #fff;
+  background: rgba(220, 38, 38, .18);
+  font-size: .9rem;
+  font-weight: 900;
+  line-height: 1.9;
+  text-align: center;
+}
+
+body[data-page="entry"] .guest-guide {
+  border: 2px solid var(--gold-1);
+  color: #fff8d5;
+  background: rgba(246, 207, 106, .12);
+  box-shadow: 0 0 0 0 rgba(246, 207, 106, .5);
+  animation: guest-guide-pulse 1.15s ease-in-out infinite;
+}
+
+body[data-page="entry"] .guest-guide strong {
+  display: inline-block;
+  margin: 4px;
+  padding: 5px 10px;
+  border-radius: 9px;
+  color: #071326;
+  background: var(--gold-1);
+  font-size: 1.05em;
+  white-space: nowrap;
+}
+
+@keyframes guest-guide-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(246, 207, 106, .45);
+  }
+  50% {
+    transform: scale(1.018);
+    box-shadow: 0 0 0 8px rgba(246, 207, 106, 0);
+  }
+}
+
 body[data-page="registration"] .result-state .success-icon {
   color: var(--gold-1);
   border-color: var(--gold-1);
