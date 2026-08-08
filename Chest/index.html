@@ -139,8 +139,8 @@
   .result-summary-text{font-size:16px;font-weight:800;color:var(--text);line-height:1.8;text-align:center;margin-bottom:0;padding:0 4px}
   .analysis-cards{width:100%;display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
   .analysis-card{background:var(--navy-card);border:1.5px solid var(--cyan-dim);border-radius:16px;padding:18px}
-  .analysis-card.bad{border-color:rgba(255,77,109,.35)}
-  .analysis-card.good{border-color:rgba(0,224,106,.3)}
+  .analysis-card.bad{border-color:rgba(255,77,109,.35)} 
+  .analysis-card.good{border-color:rgba(0,224,106,.3)} 
   .analysis-card.warn{border-color:rgba(255,201,71,.3)}
   .ac-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
   .ac-icon{font-size:17px;flex-shrink:0;margin-top:2px}
@@ -149,22 +149,23 @@
   .ac-answer{font-size:13px;font-weight:700;color:var(--text-dim);margin-bottom:8px;padding:7px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-right:2px solid var(--cyan)}
   .ac-body{font-size:14px;font-weight:700;color:var(--text-dim);line-height:1.8}
   .cta-bottom-card{
-    width:100%;background:var(--navy-card);border:1.5px solid var(--cyan-dim);
-    border-radius:16px;padding:20px;text-align:center;margin-bottom:14px;
+    width:100%;background:linear-gradient(135deg,rgba(0,200,224,0.08),rgba(0,153,187,0.08));
+    border:1.5px solid rgba(0,200,224,0.3);border-radius:20px;
+    padding:24px 20px;text-align:center;margin-bottom:14px;
   }
-  .cta-bottom-title{font-size:19px;font-weight:900;color:var(--text);line-height:1.75;margin-bottom:8px}
+  .cta-bottom-title{font-size:20px;font-weight:900;color:var(--text);line-height:1.75;margin-bottom:8px}
   .cta-bottom-title span{color:var(--cyan)}
-  .cta-bottom-sub{font-size:14px;color:var(--text-dim);line-height:1.8}
+  .cta-bottom-sub{font-size:15px;color:var(--text-dim);line-height:1.8}
   #screen-fallback{display:none;flex-direction:column;align-items:center;gap:16px;width:100%;text-align:center}
-  .fallback-title{font-size:22px;font-weight:900;color:var(--text);line-height:1.7}
-  .fallback-sub{font-size:15px;color:var(--text-dim);line-height:1.8}
+  .fallback-title{font-size:22px;font-weight:900;text-align:center}
+  .fallback-sub{font-size:15px;color:var(--text-dim);text-align:center;line-height:1.75}
   .btn-group{display:flex;flex-direction:column;gap:12px;width:100%}
-  #screen-redirect{display:none;flex-direction:column;align-items:center;gap:20px;text-align:center;padding:40px 0}
+  #screen-redirect{display:none;flex-direction:column;align-items:center;gap:16px}
   .redirect-icon{width:80px;height:80px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;animation:bounce-in .5s cubic-bezier(.34,1.56,.64,1) forwards}
   .redirect-icon.telegram{background:linear-gradient(135deg,#2AABEE,#229ED9);box-shadow:0 8px 28px rgba(42,171,238,0.45)}
-  .redirect-icon.whatsapp{background:linear-gradient(135deg,#25D366,#128C7E);box-shadow:0 8px 28px rgba(37,211,102,0.45)}
-  .redirect-text{font-size:20px;font-weight:900;color:var(--text)}
-  .redirect-sub{font-size:15px;color:var(--text-dim)}
+  .redirect-text{font-size:19px;font-weight:900;text-align:center}
+  .redirect-sub{font-size:14px;color:var(--text-dim);text-align:center}
+  @media(max-width:360px){.phone-row{grid-template-columns:1fr}.question-text{font-size:17px}}
 </style>
 </head>
 <body>
@@ -211,21 +212,41 @@
     </div>
   </div>
 
+  <!-- نمایش نتایج اول قرار گرفت -->
+  <div id="screen-result">
+    <div class="result-header">
+      <div class="result-score-box">
+        <div class="result-score-num" id="result-score-num"></div>
+        <div class="result-score-label">امتیاز برنامه‌ات از ۱۰</div>
+      </div>
+      <br>
+      <div class="result-summary-text" id="result-summary"></div>
+    </div>
+    <div class="divider" style="margin:0 auto 22px;"></div>
+    <div class="analysis-cards" id="analysis-cards"></div>
+    <div class="cta-bottom-card">
+      <div class="cta-bottom-title">میخوای <span>برنامه‌ریزیت</span> رو انجام بدم؟</div>
+      <div class="cta-bottom-sub">اگه می‌خوای یه برنامه دقیق و علمی داشته باشی، برای هماهنگی، بهم پیام بده.</div>
+    </div>
+    <button class="btn-primary" onclick="sendMessage()" style="width:100%">📲 بهم پیام بده ←</button>
+  </div>
+
+  <!-- فرم اطلاعات به انتها منتقل شد -->
   <div id="screen-form">
-    <div class="form-badge">✅</div>
+    <div class="form-badge">💬</div>
     <div class="form-card">
-      <div class="form-card-title">نتیجه تحلیل <span>آماده شد!</span></div>
+      <div class="form-card-title">ارتباط <span>با من</span></div>
       <div class="divider" style="margin-bottom:12px;"></div>
       <div class="form-card-sub">
-        اسم و شمارتو وارد کن تا نتیجه رو <strong style="color:var(--text)">شخصی‌سازی کنم واست</strong>
+        برای هماهنگی برنامه‌ریزی و ارتباط مستقیم با من، شمارت رو بذار 👇
       </div>
     </div>
     <div class="input-wrap">
       <input type="text" id="input-name" placeholder="نام و نام خانوادگی" autocomplete="off" />
       <div class="error-msg" id="err-name">نام رو وارد کن</div>
     </div>
-    <div class="field-hint" style="text-align:right;margin-top:-6px;margin-bottom:10px;padding:10px 12px;border:1px solid #fbbf24;border-radius:10px;background:rgba(251,191,36,.12);color:#fbbf24;font-size:13px;font-weight:800;">🌍 خارج از ایران هستی؟ پیش‌شماره‌ی خودت رو وارد کن.</div>
     <div class="input-wrap">
+      <div class="field-hint" style="text-align:right;margin-bottom:10px;padding:10px 12px;border:1px solid #fbbf24;border-radius:10px;background:rgba(251,191,36,.12);color:#fbbf24;font-size:13px;font-weight:800;">🌍 خارج از ایران هستی؟ پیش‌شماره‌ی خودت رو وارد کن.</div>
       <div class="phone-row">
         <select id="input-country">
           <option value="IR" selected>🇮🇷 ایران +98</option>
@@ -248,30 +269,12 @@
       <div class="error-msg" id="err-phone">شماره معتبر وارد کن</div>
       <div class="field-hint" id="phone-hint">شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن؛ پیش‌شماره انتخاب‌شده خودکار اضافه می‌شود.</div>
     </div>
-    <button class="btn-primary" onclick="handleSubmit()">دریافت نتیجه ←</button>
+    <button class="btn-primary" onclick="handleSubmit()">شروع چت ←</button>
   </div>
 
   <div id="screen-loading">
     <div class="loader-ring"></div>
     <div class="loading-text">در حال ثبت اطلاعات...</div>
-  </div>
-
-  <div id="screen-result">
-    <div class="result-header">
-      <div class="result-score-box">
-        <div class="result-score-num" id="result-score-num"></div>
-        <div class="result-score-label">امتیاز برنامه‌ات از 10</div>
-      </div>
-      <br>
-      <div class="result-summary-text" id="result-summary"></div>
-    </div>
-    <div class="divider" style="margin:0 auto 22px;"></div>
-    <div class="analysis-cards" id="analysis-cards"></div>
-    <div class="cta-bottom-card">
-      <div class="cta-bottom-title">میخوای <span>برنامه‌ریزیت</span> رو انجام بدم؟</div>
-      <div class="cta-bottom-sub">اگه می‌خوای یه برنامه دقیق و علمی داشته باشی، برای اطلاع از شرایط، بهم پیام بده.</div>
-    </div>
-    <button class="btn-primary" onclick="sendMessage()" style="width:100%">📲 بهم پیام بده ←</button>
   </div>
 
   <div id="screen-fallback">
@@ -291,32 +294,34 @@
   </div>
 
 </div>
-
 <script>
 // ==========================================
 // تنظیمات اصلی فرم
 // ==========================================
-const FORM_NAME = "Chest_test"; // 👈 نام تب شیت برای تست سینه
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; // 👈 لینک اسکریپت هوشمند رو بذار اینجا
-const TELEGRAM_ABROAD  = "https://t.me/Alichiacademy3"; // تغییر از واتساپ به تلگرام
+const FORM_NAME = "Chest_test-new"; // 👈 تغییر نام به همراه new
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; 
+const TELEGRAM_ABROAD  = "https://t.me/Alichiacademy3";
 
-// استخراج سورس از لینک 
 const urlParams = new URLSearchParams(window.location.search);
 const SOURCE_LABEL = urlParams.get('source') || urlParams.get('utm_source') || "بدون تگ / ارگانیک";
 
-// تابع توزیع هوشمند بر اساس ساعت ایران
 function getTelegramSupport() {
   const options = { timeZone: 'Asia/Tehran', hour: 'numeric', hour12: false };
   const formatter = new Intl.DateTimeFormat('en-US', options);
   let iranHour = parseInt(formatter.format(new Date()), 10);
   if (iranHour === 24) iranHour = 0;
 
-  let account;
+  // توزیع موقت
+  let account = "Alichiacademy";
+
+  /* 
+  // منطق زمان‌بندی قبلی
   if ((iranHour >= 3 && iranHour < 10) || (iranHour >= 16 && iranHour < 22)) {
     account = "Alichiacademy2";
   } else {
     account = "Alichiacademy";
   }
+  */
   
   return {
     url: `https://t.me/${account}`,
@@ -449,7 +454,6 @@ function renderQ(){
   const q=QUESTIONS[currentQ];
   const pct=Math.round(((currentQ+1)/TOTAL_Q)*100);
   document.getElementById("q-num").textContent=currentQ+1;
-  // حذف کد مخرب قبلی و جایگزینی با روش مطمئن
   document.getElementById("q-pct").textContent=pct+"%";
   document.getElementById("progress-fill").style.width=pct+"%";
   document.getElementById("q-label").textContent="سوال "+FA[currentQ+1];
@@ -508,7 +512,8 @@ function startAnalyzing(){
     }else{
       setTimeout(()=>{
         document.getElementById("screen-analyzing").style.display="none";
-        document.getElementById("screen-form").style.display="flex";
+        // نمایش مستقیم نتایج
+        showResultScreen();
       },500);
     }
   }
@@ -556,19 +561,13 @@ function decide(pi){
   const tzIran=tz==="Asia/Tehran",tzAbroad=tz&&tz!=="Asia/Tehran";
   const brAbroad=br&&br!=="IR"&&br!=="AF",brIran=br==="IR"&&tz==="Asia/Tehran";
   
-  // اولویت قطعی با تایم‌زون
   if(tzAbroad) return {dest:"telegram_abroad", location:"خارج (تایم‌زون)", segment:"foreign_timezone"};
-  
-  // بررسی از طریق شماره در صورت نبودن تایم‌زون خارجی
   if(!pi.isIranPhone) return {dest:"telegram_abroad", location:"خارج (شماره)", segment:"foreign_phone"};
-  
-  // در غیر این صورت ایران
   if(tzIran||brIran) return {dest:"telegram", location:"ایران", segment:"inside_iran"};
   
   return {dest:"fallback", location:"نامشخص", segment:"unknown"};
 }
 
-// ارسال دیتا به اسکریپت داینامیک شیت
 function saveToSheet(payload){
   try {
     payload.formName = FORM_NAME;
@@ -581,70 +580,32 @@ function saveToSheet(payload){
   } catch(e) {}
 }
 
-function handleSubmit(){
-  const name=document.getElementById("input-name").value;
-  const phone=document.getElementById("input-phone").value;
-  const cc=document.getElementById("input-country").value;
-  const pi=validatePhone(phone,cc);
-  let valid=true;
-  
-  if(name.trim().length<2){document.getElementById("err-name").style.display="block";document.getElementById("input-name").classList.add("error");valid=false;}
-  else{document.getElementById("err-name").style.display="none";document.getElementById("input-name").classList.remove("error");}
-  
-  if(!pi.valid){document.getElementById("err-phone").textContent=pi.message;document.getElementById("err-phone").style.display="block";document.getElementById("input-phone").classList.add("error");document.getElementById("input-country").classList.add("error");valid=false;}
-  else{document.getElementById("err-phone").style.display="none";document.getElementById("input-phone").classList.remove("error");document.getElementById("input-country").classList.remove("error");}
-  
-  if(!valid)return;
-  
-  userData={name:name.trim(),phone:pi.e164,countryCode:pi.countryCode,phoneInfo:pi};
-  locationDecision=decide(pi);
-
-  // تعیین پشتیبان 
-  let finalUrl = "", supportName = "نامشخص";
-  if (locationDecision.dest === "telegram") {
-    const tgInfo = getTelegramSupport();
-    finalUrl = tgInfo.url;
-    supportName = "@" + tgInfo.accountName;
-  } else if (locationDecision.dest === "telegram_abroad") {
-    finalUrl = TELEGRAM_ABROAD;
-    supportName = "@Alichiacademy3";
-  }
-  locationDecision.finalUrl = finalUrl;
-  locationDecision.supportName = supportName;
-
-  // استخراج جواب‌های کاربر به تفکیک
-  let userAnswers = {};
-  QUESTIONS.forEach((q, i) => {
-    userAnswers[`سوال ${i+1}`] = q.opts[answers[i]];
-  });
-
-  // ثبت در گوگل شیت موقع مشاهده نتیجه
-  saveToSheet({
-    "نام": userData.name,
-    "شماره تماس": userData.phone,
-    "وضعیت": "مشاهده نتایج تست سینه",
-    "امتیاز از 10": score10,
-    "امتیاز خام": totalScore,
-    "منبع (Source)": SOURCE_LABEL,
-    "پشتیبان (مقصد)": supportName,
-    "موقعیت": locationDecision.location,
-    "سگمنت": locationDecision.segment,
-    ...userAnswers
-  });
-
-  document.getElementById("screen-form").style.display="none";
-  document.getElementById("screen-loading").style.display="flex";
-  setTimeout(()=>{
-    document.getElementById("screen-loading").style.display="none";
-    showResultScreen();
-  },900);
-}
-
 function showResultScreen(){
   document.getElementById("result-score-num").textContent=score10+" / 10";
   document.getElementById("result-summary").textContent=summaryData.text;
   buildAnalysisCards();
   document.getElementById("screen-result").style.display="flex";
+
+  // استخراج جواب‌های کاربر
+  let userAnswers = {};
+  QUESTIONS.forEach((q, i) => {
+    userAnswers[`سوال ${i+1}`] = q.opts[answers[i]];
+  });
+
+  // ثبت در گوگل شیت موقع مشاهده نتیجه (ناشناس)
+  saveToSheet({
+    "نام": "ناشناس",
+    "شماره تماس": "-",
+    "وضعیت": "مشاهده نتایج تست سینه",
+    "امتیاز از 10": score10,
+    "امتیاز خام": totalScore,
+    "منبع (Source)": SOURCE_LABEL,
+    "پشتیبان (مقصد)": "-",
+    "موقعیت": "-",
+    "سگمنت": "-",
+    "تایم زون": getTimezone(),
+    ...userAnswers
+  });
 }
 
 function buildAnalysisCards(){
@@ -671,26 +632,78 @@ function buildAnalysisCards(){
   });
 }
 
+// باز کردن فرم بعد از کلیک روی دکمه پیام
 function sendMessage(){
-  if(!locationDecision){locationDecision={dest:"fallback"};}
-  if(locationDecision.dest==="fallback"){
-    document.getElementById("screen-result").style.display="none";
-    document.getElementById("screen-fallback").style.display="flex";
-  }else{
-    // کاربر روی پیام کلیک کرده
-    saveToSheet({
-      "نام": userData.name,
-      "شماره تماس": userData.phone,
-      "وضعیت": "کلیک روی پیام به پشتیبان (اقدام)",
-      "پشتیبان (مقصد)": locationDecision.supportName
-    });
-    doRedirect(locationDecision.dest, locationDecision.finalUrl);
+  document.getElementById("screen-result").style.display="none";
+  document.getElementById("screen-form").style.display="flex";
+}
+
+function handleSubmit(){
+  const name=document.getElementById("input-name").value;
+  const phone=document.getElementById("input-phone").value;
+  const cc=document.getElementById("input-country").value;
+  const pi=validatePhone(phone,cc);
+  let valid=true;
+  
+  if(name.trim().length<2){document.getElementById("err-name").style.display="block";document.getElementById("input-name").classList.add("error");valid=false;}
+  else{document.getElementById("err-name").style.display="none";document.getElementById("input-name").classList.remove("error");}
+  
+  if(!pi.valid){document.getElementById("err-phone").textContent=pi.message;document.getElementById("err-phone").style.display="block";document.getElementById("input-phone").classList.add("error");document.getElementById("input-country").classList.add("error");valid=false;}
+  else{document.getElementById("err-phone").style.display="none";document.getElementById("input-phone").classList.remove("error");document.getElementById("input-country").classList.remove("error");}
+  
+  if(!valid)return;
+  
+  userData={name:name.trim(),phone:pi.e164,countryCode:pi.countryCode,phoneInfo:pi};
+  locationDecision=decide(pi);
+
+  let finalUrl = "", supportName = "نامشخص";
+  if (locationDecision.dest === "telegram") {
+    const tgInfo = getTelegramSupport();
+    finalUrl = tgInfo.url;
+    supportName = "@" + tgInfo.accountName;
+  } else if (locationDecision.dest === "telegram_abroad") {
+    finalUrl = TELEGRAM_ABROAD;
+    supportName = "@Alichiacademy3";
   }
+  locationDecision.finalUrl = finalUrl;
+  locationDecision.supportName = supportName;
+
+  let userAnswers = {};
+  QUESTIONS.forEach((q, i) => {
+    userAnswers[`سوال ${i+1}`] = q.opts[answers[i]];
+  });
+
+  // ثبت نهایی پس از تکمیل فرم
+  saveToSheet({
+    "نام": userData.name,
+    "شماره تماس": userData.phone,
+    "وضعیت": "تکمیل فرم و ارتباط با من",
+    "امتیاز از 10": score10,
+    "امتیاز خام": totalScore,
+    "منبع (Source)": SOURCE_LABEL,
+    "پشتیبان (مقصد)": supportName,
+    "موقعیت": locationDecision.location,
+    "سگمنت": locationDecision.segment,
+    "تایم زون": getTimezone(),
+    ...userAnswers
+  });
+
+  document.getElementById("screen-form").style.display="none";
+  document.getElementById("screen-loading").style.display="flex";
+  
+  setTimeout(()=>{
+    document.getElementById("screen-loading").style.display="none";
+    if(locationDecision.dest==="fallback"){
+      document.getElementById("screen-fallback").style.display="flex";
+    }else{
+      doRedirect(locationDecision.dest, locationDecision.finalUrl);
+    }
+  },900);
 }
 
 function goTo(dest){
   document.getElementById("screen-fallback").style.display="none";
-  const loc=dest==="telegram"?"داخل ایران":"خارج از ایران";
+  const loc=dest==="telegram"?"داخل ایران (انتخابی)":"خارج از ایران (انتخابی)";
   
   let finalUrl, supportName;
   if (dest === "telegram") {
@@ -702,13 +715,13 @@ function goTo(dest){
     supportName = "@Alichiacademy3";
   }
 
-  // ثبت اقدام کاربر به انتخاب دستی
   saveToSheet({
-    "نام": userData.name,
-    "شماره تماس": userData.phone,
-    "وضعیت": "انتخاب دستی پشتیبان",
+    "نام": userData.name || "ناشناس",
+    "شماره تماس": userData.phone || "-",
+    "وضعیت": "انتخاب دستی ارتباط",
     "موقعیت": loc,
-    "پشتیبان (مقصد)": supportName
+    "پشتیبان (مقصد)": supportName,
+    "تایم زون": getTimezone()
   });
 
   doRedirect(dest, finalUrl);

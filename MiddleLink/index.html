@@ -317,11 +317,11 @@
 
 <script>
   // ==========================================
-  // تنظیمات اصلی کد (برای هر فرم جدید اینها رو تغییر بده)
+  // تنظیمات اصلی کد 
   // ==========================================
-  const FORM_NAME = "MiddleLink"; // 👈 اسم تب (برگه) در گوگل شیت
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; // 👈 لینک اسکریپت جدیدت رو اینجا بزار
-  const TELEGRAM_ABROAD = "https://t.me/Alichiacademy3"; // 👈 لینک جایگزین واتساپ
+  const FORM_NAME = "MiddleLink-new"; // 👈 نام تب با پسوند new
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; 
+  const TELEGRAM_ABROAD = "https://t.me/Alichiacademy3"; 
   
   // خواندن پارامتر سورس از لینک
   const urlParams = new URLSearchParams(window.location.search);
@@ -331,24 +331,22 @@
   // تابع توزیع هوشمند بر اساس ساعت ایران
   // ==========================================
   function getTelegramSupport() {
-    // گرفتن ساعت جاری به وقت تهران (اعداد بین 0 تا 23)
     const options = { timeZone: 'Asia/Tehran', hour: 'numeric', hour12: false };
     const formatter = new Intl.DateTimeFormat('en-US', options);
     let iranHour = parseInt(formatter.format(new Date()), 10);
-    
-    // اگر به هر دلیلی ساعت 24 برگردونده شد، اون رو به 0 تبدیل می‌کنیم (معمولاً 0 تا 23 هست)
     if (iranHour === 24) iranHour = 0;
 
-    let account;
+    // هدایت تمام کاربران داخل ایران به ایدی اصلی (موقتی)
+    let account = "Alichiacademy";
     
-    // اکانت 2: 3 تا ۱۰ صبح | ۱۶ تا ۲۰ عصر
+    /* 
+    // منطق زمان‌بندی قبلی
     if ((iranHour >= 3 && iranHour < 10) || (iranHour >= 16 && iranHour < 22)) {
       account = "Alichiacademy2";
-    } 
-    // اکانت 1: ۱۰ تا ۱۶ | ۲۰ تا ۲۴ | ۲۴ تا ۶ صبح (در واقع هر ساعتی غیر از اونایی که بالا تعریف شد)
-    else {
+    } else {
       account = "Alichiacademy";
     }
+    */
     
     return {
       url: `https://t.me/${account}`,
@@ -499,7 +497,7 @@
         method: "POST",
         mode: "no-cors",
         keepalive: true,
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, // دور زدن CORS
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
         body: JSON.stringify({ formName: FORM_NAME, name, phone, location, ...details })
       }).then(() => { window.location.href = redirectUrl; }).catch(() => { window.location.href = redirectUrl; });
     } catch(e) { window.location.href = redirectUrl; }

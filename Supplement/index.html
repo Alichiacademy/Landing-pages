@@ -100,6 +100,8 @@
   .step-row.active .step-dot{background:var(--cyan);box-shadow:0 0 8px rgba(0,200,224,0.6)}
   .step-row.done{opacity:1;color:var(--green)}
   .step-row.done .step-dot{background:var(--green)}
+  
+  /* Form Screen */
   #screen-form{display:none;flex-direction:column;align-items:center;gap:16px;width:100%}
   .form-badge{font-size:48px;animation:bounce-in .5s cubic-bezier(.34,1.56,.64,1) forwards}
   @keyframes bounce-in{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
@@ -130,6 +132,7 @@
     box-shadow:0 4px 24px rgba(0,200,224,0.3);transition:all .2s;
   }
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,200,224,0.45)}
+  
   /* Result */
   #screen-result{display:none;flex-direction:column;align-items:center;gap:0;width:100%}
   .result-header{text-align:center;margin-bottom:20px;width:100%}
@@ -237,13 +240,29 @@
     </div>
   </div>
 
+  <!-- صفحه نتایج به اینجا منتقل شد -->
+  <div id="screen-result">
+    <div class="result-header">
+      <div class="result-title">مکمل‌های <span>پیشنهادی</span> تو</div>
+      <div class="result-sub" id="result-sub"></div>
+    </div>
+    <div id="result-essential-wrap"></div>
+    <div id="result-sport-wrap"></div>
+    <div class="cta-bottom-card">
+      <div class="cta-bottom-title">میخوای <span>برنامه‌ریزیت</span> رو انجام بدم؟</div>
+      <div class="cta-bottom-sub">اگه می‌خوای یه برنامه دقیق و علمی داشته باشی، برای هماهنگی بهم پیام بده.</div>
+    </div>
+    <button class="btn-primary" onclick="sendMessage()" style="width:100%">📲 بهم پیام بده ←</button>
+  </div>
+
+  <!-- فرم دریافت اطلاعات به انتهای کار منتقل شد -->
   <div id="screen-form">
-    <div class="form-badge">✅</div>
+    <div class="form-badge">💬</div>
     <div class="form-card">
-      <div class="form-card-title">لیست مکمل‌هات <span>آماده شد!</span></div>
+      <div class="form-card-title">ارتباط <span>با من</span></div>
       <div class="divider" style="margin-bottom:12px;"></div>
       <div class="form-card-sub">
-        برای دریافت لیست کامل مکمل‌هات، شمارتو بذار تا <strong style="color:var(--text)">مستقیم برات بفرستم 👇</strong>
+        برای هماهنگی برنامه‌ریزی و ارتباط مستقیم با من، شمارت رو بذار 👇
       </div>
     </div>
     <div class="input-wrap">
@@ -274,26 +293,12 @@
       <div class="error-msg" id="err-phone">شماره معتبر وارد کن</div>
       <div class="field-hint" id="phone-hint">شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن؛ پیش‌شماره انتخاب‌شده خودکار اضافه می‌شود.</div>
     </div>
-    <button class="btn-primary" onclick="handleSubmit()">دریافت لیست مکمل‌ها ←</button>
+    <button class="btn-primary" onclick="handleSubmit()">شروع چت ←</button>
   </div>
 
   <div id="screen-loading">
     <div class="loader-ring"></div>
     <div class="loading-text">در حال ثبت اطلاعات...</div>
-  </div>
-
-  <div id="screen-result">
-    <div class="result-header">
-      <div class="result-title">مکمل‌های <span>پیشنهادی</span> تو</div>
-      <div class="result-sub" id="result-sub"></div>
-    </div>
-    <div id="result-essential-wrap"></div>
-    <div id="result-sport-wrap"></div>
-    <div class="cta-bottom-card">
-      <div class="cta-bottom-title">میخوای <span>برنامه‌ریزیت</span> رو انجام بدم؟</div>
-      <div class="cta-bottom-sub">اگه می‌خوای یه برنامه دقیق و علمی داشته باشی، برای اطلاع از شرایط بهم پیام بده.</div>
-    </div>
-    <button class="btn-primary" onclick="sendMessage()" style="width:100%">📲 بهم پیام بده ←</button>
   </div>
 
   <div id="screen-fallback">
@@ -317,27 +322,31 @@
 // ==========================================
 // تنظیمات اصلی فرم
 // ==========================================
-const FORM_NAME = "Supplement-test"; // 👈 اسم برگه تو گوگل شیت
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; // 👈 لینک اسکریپت هوشمند رو بذار اینجا
-const TELEGRAM_ABROAD  = "https://t.me/Alichiacademy3"; // تغییر به تلگرام خارجی
+const FORM_NAME = "Supplement-test-new"; // 👈 نام شیت جدید
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; 
+const TELEGRAM_ABROAD  = "https://t.me/Alichiacademy3";
 
-// دریافت سورس ترافیک از آدرس لینک (URL)
+// دریافت سورس ترافیک
 const urlParams = new URLSearchParams(window.location.search);
 const SOURCE_LABEL = urlParams.get('source') || urlParams.get('utm_source') || "بدون تگ / ارگانیک";
 
-// تابع توزیع هوشمند بر اساس ساعت ایران
 function getTelegramSupport() {
   const options = { timeZone: 'Asia/Tehran', hour: 'numeric', hour12: false };
   const formatter = new Intl.DateTimeFormat('en-US', options);
   let iranHour = parseInt(formatter.format(new Date()), 10);
   if (iranHour === 24) iranHour = 0;
 
-  let account;
+  // تنظیم موقت: هدایت تمام کاربران داخل ایران به ایدی اصلی
+  let account = "Alichiacademy";
+  
+  /* 
+  // منطق زمان‌بندی قبلی (جهت استفاده‌های بعدی)
   if ((iranHour >= 3 && iranHour < 10) || (iranHour >= 16 && iranHour < 22)) {
     account = "Alichiacademy2";
   } else {
     account = "Alichiacademy";
   }
+  */
   
   return {
     url: `https://t.me/${account}`,
@@ -399,7 +408,6 @@ const QUESTIONS = [
 
 const FA = [" ","۱","۲","۳","۴","۵","۶","۷"];
 let currentQ = 0;
-// For multi: answers[i] = array of selected indices; for single: answers[i] = index
 let answers = new Array(7).fill(null);
 let userData = {}, locationDecision = null;
 let calculatedSupplementsText = "";
@@ -434,7 +442,7 @@ function renderQ() {
     btn.onclick = () => selectOption(i);
     list.appendChild(btn);
   });
-  // Handle basic_info type
+  
   if (q.type === "basic_info") {
     list.innerHTML = "";
     const saved = answers[currentQ] || {};
@@ -459,7 +467,6 @@ function renderQ() {
               value="${saved.weight||''}" oninput="syncBasicInfo()" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='rgba(0,200,224,0.18)'" />
           </div>
         </div>
-        <div id="basic-info-err" style="color:var(--red);font-size:13px;font-weight:700;display:none;text-align:right;">لطفاً همه فیلدها رو پر کن</div>
       </div>
     `;
   }
@@ -540,7 +547,9 @@ function startAnalyzing() {
     } else {
       setTimeout(() => {
         document.getElementById("screen-analyzing").style.display = "none";
-        document.getElementById("screen-form").style.display = "flex";
+        // در این نسخه مستقیماً به صفحه نتایج منتقل می‌شود
+        const { essential, sport } = computeSupplements();
+        showResultScreen(essential, sport);
       }, 500);
     }
   }
@@ -671,19 +680,13 @@ function decide(pi){
   const tzIran=tz==="Asia/Tehran",tzAbroad=tz&&tz!=="Asia/Tehran";
   const brAbroad=br&&br!=="IR"&&br!=="AF",brIran=br==="IR"&&tz==="Asia/Tehran";
   
-  // اولویت قطعی با بررسی تایم‌زون
   if(tzAbroad) return {dest:"telegram_abroad", location:"خارج (تایم‌زون)", segment:"foreign_timezone"};
-  
-  // بررسی شماره تلفن در صورت نبودن اطلاعات تایم‌زون خارجی
   if(!pi.isIranPhone) return {dest:"telegram_abroad", location:"خارج (شماره)", segment:"foreign_phone"};
-  
-  // در غیر این صورت ایران در نظر گرفته می‌شود
   if(tzIran||brIran) return {dest:"telegram", location:"ایران", segment:"inside_iran"};
   
   return {dest:"fallback", location:"نامشخص", segment:"unknown"};
 }
 
-// تابع ارسال داینامیک به اسکریپت گوگل شیت
 function saveToSheet(payload){
   try {
     payload.formName = FORM_NAME;
@@ -694,78 +697,6 @@ function saveToSheet(payload){
       body: JSON.stringify(payload)
     });
   } catch(e) {}
-}
-
-function handleSubmit(){
-  const name=document.getElementById("input-name").value;
-  const phone=document.getElementById("input-phone").value;
-  const cc=document.getElementById("input-country").value;
-  const pi=validatePhone(phone,cc);
-  let valid=true;
-  
-  if(name.trim().length<2){document.getElementById("err-name").style.display="block";document.getElementById("input-name").classList.add("error");valid=false;}
-  else{document.getElementById("err-name").style.display="none";document.getElementById("input-name").classList.remove("error");}
-  
-  if(!pi.valid){document.getElementById("err-phone").textContent=pi.message;document.getElementById("err-phone").style.display="block";document.getElementById("input-phone").classList.add("error");document.getElementById("input-country").classList.add("error");valid=false;}
-  else{document.getElementById("err-phone").style.display="none";document.getElementById("input-phone").classList.remove("error");document.getElementById("input-country").classList.remove("error");}
-  
-  if(!valid)return;
-  
-  userData={name:name.trim(),phone:pi.e164,countryCode:pi.countryCode,phoneInfo:pi};
-  locationDecision=decide(pi);
-
-  // بررسی مقصد بر اساس ساعات کاری پشتیبانی
-  let finalUrl = "", supportName = "نامشخص";
-  if (locationDecision.dest === "telegram") {
-    const tgInfo = getTelegramSupport();
-    finalUrl = tgInfo.url;
-    supportName = "@" + tgInfo.accountName;
-  } else if (locationDecision.dest === "telegram_abroad") {
-    finalUrl = TELEGRAM_ABROAD;
-    supportName = "@Alichiacademy3";
-  }
-  locationDecision.finalUrl = finalUrl;
-  locationDecision.supportName = supportName;
-
-  // محاسبه مکمل‌ها و تبدیل به متن
-  const { essential, sport } = computeSupplements();
-  calculatedSupplementsText = [...essential.map(s=>s.name), ...sport.map(s=>s.name)].join("، ");
-
-  // جمع‌آوری پاسخ‌های کاربر برای شیت
-  let userAnswers = {
-    "جنسیت": answers[0] === 0 ? "مرد" : "زن",
-    "سن": answers[1]?.age || "",
-    "قد (cm)": answers[1]?.height || "",
-    "وزن (kg)": answers[1]?.weight || "",
-    "هدف تمرین": QUESTIONS[2].opts[answers[2]] || "",
-    "پروتئین دریافتی": QUESTIONS[3].opts[answers[3]] || "",
-    "وضعیت رژیم غذایی": QUESTIONS[4].opts[answers[4]] || "",
-    "وضعیت آفتاب گرفتن": QUESTIONS[5].opts[answers[5]] || ""
-  };
-  
-  if (Array.isArray(answers[6])) {
-    userAnswers["مشکلات فیزیکی"] = answers[6].map(i => QUESTIONS[6].opts[i]).join(" | ");
-  }
-
-  // ثبت در گوگل شیت
-  saveToSheet({
-    "نام": userData.name,
-    "شماره تماس": userData.phone,
-    "وضعیت": "مشاهده لیست مکمل‌ها",
-    "منبع (Source)": SOURCE_LABEL,
-    "پشتیبان (مقصد)": supportName,
-    "موقعیت": locationDecision.location,
-    "سگمنت": locationDecision.segment,
-    "مکمل‌های پیشنهادی": calculatedSupplementsText,
-    ...userAnswers
-  });
-
-  document.getElementById("screen-form").style.display="none";
-  document.getElementById("screen-loading").style.display="flex";
-  setTimeout(()=>{
-    document.getElementById("screen-loading").style.display="none";
-    showResultScreen(essential, sport);
-  },900);
 }
 
 function showResultScreen(essential, sport){
@@ -821,29 +752,122 @@ function showResultScreen(essential, sport){
     noEss.textContent = "✅ مکمل ضروری اضافه‌ای نیاز نداری!";
     essWrap.appendChild(noEss);
   }
+  
+  // تولید متن مکمل‌ها برای ذخیره در گوگل شیت
+  calculatedSupplementsText = [...essential.map(s=>s.name), ...sport.map(s=>s.name)].join("، ");
+
+  // تولید مقادیر جواب‌های کاربر
+  let userAnswers = {
+    "جنسیت": answers[0] === 0 ? "مرد" : "زن",
+    "سن": answers[1]?.age || "",
+    "قد (cm)": answers[1]?.height || "",
+    "وزن (kg)": answers[1]?.weight || "",
+    "هدف تمرین": QUESTIONS[2].opts[answers[2]] || "",
+    "پروتئین دریافتی": QUESTIONS[3].opts[answers[3]] || "",
+    "وضعیت رژیم غذایی": QUESTIONS[4].opts[answers[4]] || "",
+    "وضعیت آفتاب گرفتن": QUESTIONS[5].opts[answers[5]] || ""
+  };
+  if (Array.isArray(answers[6])) {
+    userAnswers["مشکلات فیزیکی"] = answers[6].map(i => QUESTIONS[6].opts[i]).join(" | ");
+  }
+
+  // ثبت آمار ناشناس
+  saveToSheet({
+    "نام": "ناشناس",
+    "شماره تماس": "-",
+    "وضعیت": "مشاهده لیست مکمل‌ها",
+    "منبع (Source)": SOURCE_LABEL,
+    "پشتیبان (مقصد)": "-",
+    "موقعیت": "-",
+    "سگمنت": "-",
+    "تایم زون": getTimezone(),
+    "مکمل‌های پیشنهادی": calculatedSupplementsText,
+    ...userAnswers
+  });
+
   document.getElementById("screen-result").style.display="flex";
 }
 
 function sendMessage(){
-  if(!locationDecision){locationDecision={dest:"fallback"};}
-  if(locationDecision.dest==="fallback"){
-    document.getElementById("screen-result").style.display="none";
-    document.getElementById("screen-fallback").style.display="flex";
-  }else{
-    // کاربر قصد اقدام داره
-    saveToSheet({
-      "نام": userData.name,
-      "شماره تماس": userData.phone,
-      "وضعیت": "کلیک روی پیام به پشتیبان (درخواست مشاوره)",
-      "پشتیبان (مقصد)": locationDecision.supportName
-    });
-    doRedirect(locationDecision.dest, locationDecision.finalUrl);
+  document.getElementById("screen-result").style.display="none";
+  document.getElementById("screen-form").style.display="flex";
+}
+
+function handleSubmit(){
+  const name=document.getElementById("input-name").value;
+  const phone=document.getElementById("input-phone").value;
+  const cc=document.getElementById("input-country").value;
+  const pi=validatePhone(phone,cc);
+  let valid=true;
+  
+  if(name.trim().length<2){document.getElementById("err-name").style.display="block";document.getElementById("input-name").classList.add("error");valid=false;}
+  else{document.getElementById("err-name").style.display="none";document.getElementById("input-name").classList.remove("error");}
+  
+  if(!pi.valid){document.getElementById("err-phone").textContent=pi.message;document.getElementById("err-phone").style.display="block";document.getElementById("input-phone").classList.add("error");document.getElementById("input-country").classList.add("error");valid=false;}
+  else{document.getElementById("err-phone").style.display="none";document.getElementById("input-phone").classList.remove("error");document.getElementById("input-country").classList.remove("error");}
+  
+  if(!valid)return;
+  
+  userData={name:name.trim(),phone:pi.e164,countryCode:pi.countryCode,phoneInfo:pi};
+  locationDecision=decide(pi);
+
+  let finalUrl = "", supportName = "نامشخص";
+  if (locationDecision.dest === "telegram") {
+    const tgInfo = getTelegramSupport();
+    finalUrl = tgInfo.url;
+    supportName = "@" + tgInfo.accountName;
+  } else if (locationDecision.dest === "telegram_abroad") {
+    finalUrl = TELEGRAM_ABROAD;
+    supportName = "@Alichiacademy3";
   }
+  locationDecision.finalUrl = finalUrl;
+  locationDecision.supportName = supportName;
+
+  let userAnswers = {
+    "جنسیت": answers[0] === 0 ? "مرد" : "زن",
+    "سن": answers[1]?.age || "",
+    "قد (cm)": answers[1]?.height || "",
+    "وزن (kg)": answers[1]?.weight || "",
+    "هدف تمرین": QUESTIONS[2].opts[answers[2]] || "",
+    "پروتئین دریافتی": QUESTIONS[3].opts[answers[3]] || "",
+    "وضعیت رژیم غذایی": QUESTIONS[4].opts[answers[4]] || "",
+    "وضعیت آفتاب گرفتن": QUESTIONS[5].opts[answers[5]] || ""
+  };
+  
+  if (Array.isArray(answers[6])) {
+    userAnswers["مشکلات فیزیکی"] = answers[6].map(i => QUESTIONS[6].opts[i]).join(" | ");
+  }
+
+  // ثبت کامل اطلاعات کاربری که روی دکمه شروع چت کلیک کرده
+  saveToSheet({
+    "نام": userData.name,
+    "شماره تماس": userData.phone,
+    "وضعیت": "تکمیل فرم و ارتباط با من",
+    "منبع (Source)": SOURCE_LABEL,
+    "پشتیبان (مقصد)": supportName,
+    "موقعیت": locationDecision.location,
+    "سگمنت": locationDecision.segment,
+    "تایم زون": getTimezone(),
+    "مکمل‌های پیشنهادی": calculatedSupplementsText,
+    ...userAnswers
+  });
+
+  document.getElementById("screen-form").style.display="none";
+  document.getElementById("screen-loading").style.display="flex";
+  
+  setTimeout(()=>{
+    document.getElementById("screen-loading").style.display="none";
+    if(locationDecision.dest==="fallback"){
+      document.getElementById("screen-fallback").style.display="flex";
+    }else{
+      doRedirect(locationDecision.dest, locationDecision.finalUrl);
+    }
+  },900);
 }
 
 function goTo(dest){
   document.getElementById("screen-fallback").style.display="none";
-  const loc=dest==="telegram"?"داخل ایران":"خارج از ایران";
+  const loc=dest==="telegram"?"داخل ایران (انتخابی)":"خارج از ایران (انتخابی)";
   
   let finalUrl, supportName;
   if (dest === "telegram") {
@@ -856,11 +880,12 @@ function goTo(dest){
   }
 
   saveToSheet({
-    "نام": userData.name,
-    "شماره تماس": userData.phone,
-    "وضعیت": "انتخاب دستی پشتیبان",
+    "نام": userData.name || "ناشناس",
+    "شماره تماس": userData.phone || "-",
+    "وضعیت": "انتخاب دستی ارتباط",
     "موقعیت": loc,
-    "پشتیبان (مقصد)": supportName
+    "پشتیبان (مقصد)": supportName,
+    "تایم زون": getTimezone()
   });
 
   doRedirect(dest, finalUrl);
