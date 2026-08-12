@@ -310,16 +310,16 @@ function getTelegramSupport() {
   if (iranHour === 24) iranHour = 0;
 
   // تنظیم موقت: هدایت تمام کاربران داخل ایران به ایدی اصلی
-  let account = "Alichiacademy";
+  //let account = "Alichiacademy";
   
-  /* 
+  
   // منطق زمان‌بندی قبلی (برای فعال‌سازی مجدد در آینده، کامنت این بخش را بردارید و خط بالا را حذف کنید)
   if ((iranHour >= 3 && iranHour < 10) || (iranHour >= 16 && iranHour < 22)) {
     account = "Alichiacademy2";
   } else {
     account = "Alichiacademy";
   }
-  */
+  
   
   return {
     url: `https://t.me/${account}`,
