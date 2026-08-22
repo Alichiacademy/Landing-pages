@@ -470,11 +470,11 @@
     <div class="input-row">
       <div class="input-group" style="flex:1">
         <label class="input-label">قد (سانتی‌متر)</label>
-        <input type="number" id="height" placeholder="۱۷۵" min="140" max="220" inputmode="numeric">
+        <input type="text" id="height" data-number-input inputmode="numeric" placeholder="۱۷۵" min="140" max="220">
       </div>
       <div class="input-group" style="flex:1">
         <label class="input-label">وزن (کیلوگرم)</label>
-        <input type="number" id="weight" placeholder="۷۵" min="40" max="200" step="0.1" inputmode="decimal">
+        <input type="text" id="weight" data-number-input data-decimal inputmode="decimal" placeholder="۷۵" min="40" max="200" step="0.1">
       </div>
     </div>
     <div class="err" id="err3">لطفاً اعداد معتبر وارد کنید</div>
@@ -949,8 +949,12 @@ function renderFatGrid(target, options, gender, key) {
 /* ════════════════ STEP NAV ════════════════ */
 function nextStep(from) {
   if (from === 3) {
-    const h = parseFloat(document.getElementById('height').value);
-    const w = parseFloat(document.getElementById('weight').value);
+    const h = parseFloat(window.normalizeNumberInput
+      ? window.normalizeNumberInput(document.getElementById('height').value, false)
+      : toEnDigits(document.getElementById('height').value));
+    const w = parseFloat(window.normalizeNumberInput
+      ? window.normalizeNumberInput(document.getElementById('weight').value, true)
+      : toEnDigits(document.getElementById('weight').value));
     if (!h || !w || h < 140 || h > 220 || w < 40 || w > 200) {
       document.getElementById('err3').classList.add('show'); return;
     }
@@ -1469,7 +1473,9 @@ function doRedirect(dest, url){
   const el = document.getElementById(id);
   if(el){
     el.addEventListener('input', e=>{
-      const converted = toEnDigits(e.target.value).replace(/[^0-9.]/g,'');
+      const converted = window.normalizeNumberInput
+        ? window.normalizeNumberInput(e.target.value, id === 'weight')
+        : toEnDigits(e.target.value).replace(/[^0-9.]/g,'');
       if(converted !== e.target.value) e.target.value = converted;
     });
   }
@@ -1486,6 +1492,7 @@ document.getElementById('inputCustomCode').addEventListener('input', e=>{
 syncPh();
 updateProgress();
 </script>
+<script src="../webinar-assets/number-inputs.js"></script>
 
 </body>
 </html>

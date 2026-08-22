@@ -402,11 +402,11 @@ input[type=range]::-webkit-slider-thumb:active{transform:scale(1.2)}
     <div class="input-row">
       <div class="input-group" style="flex:1">
         <label class="input-label">قد (سانتی‌متر)</label>
-        <input type="number" class="input-field" id="height" placeholder="۱۷۵" min="140" max="220" inputmode="numeric">
+        <input type="text" class="input-field" id="height" data-number-input inputmode="numeric" placeholder="۱۷۵" min="140" max="220">
       </div>
       <div class="input-group" style="flex:1">
         <label class="input-label">وزن (کیلوگرم)</label>
-        <input type="number" class="input-field" id="weight" placeholder="۷۵" min="40" max="200" step="0.1" inputmode="decimal">
+        <input type="text" class="input-field" id="weight" data-number-input data-decimal inputmode="decimal" placeholder="۷۵" min="40" max="200" step="0.1">
       </div>
     </div>
     <div class="err-msg" id="err3">لطفاً اعداد معتبر وارد کنید</div>
@@ -691,8 +691,12 @@ function pick(key, val, el){
 
 function go(step){
   if(step === 3){
-    const h = parseFloat(toEn(document.getElementById('height').value));
-    const w = parseFloat(toEn(document.getElementById('weight').value));
+    const h = parseFloat(window.normalizeNumberInput
+      ? window.normalizeNumberInput(document.getElementById('height').value, false)
+      : toEn(document.getElementById('height').value));
+    const w = parseFloat(window.normalizeNumberInput
+      ? window.normalizeNumberInput(document.getElementById('weight').value, true)
+      : toEn(document.getElementById('weight').value));
     if(!h||!w||h<140||h>220||w<40||w>200){
       document.getElementById('err3').classList.add('show');
       document.getElementById('height').classList.add('err');
@@ -1125,5 +1129,6 @@ function doRedirect(dest, url){
 /* ══ INIT ══ */
 syncPh();
 </script>
+<script src="../webinar-assets/number-inputs.js"></script>
 </body>
 </html>

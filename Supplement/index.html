@@ -450,21 +450,21 @@ function renderQ() {
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
         <div style="display:flex;gap:10px;">
           <div style="flex:1;">
-            <input id="info-age" type="number" inputmode="numeric" placeholder="سن (سال)" min="12" max="80"
+            <input id="info-age" type="text" data-number-input inputmode="numeric" placeholder="سن (سال)" min="12" max="80"
               style="width:100%;padding:14px 15px;background:var(--navy-light);border:1.5px solid rgba(0,200,224,0.18);border-radius:14px;font-family:Vazirmatn,sans-serif;font-size:15px;font-weight:700;color:var(--text);outline:none;direction:rtl;transition:border-color .2s;"
-              value="${saved.age||''}" oninput="syncBasicInfo()" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='rgba(0,200,224,0.18)'" />
+              value="${saved.age||''}" oninput="this.value=window.normalizeNumberInput?window.normalizeNumberInput(this.value,false):this.value;syncBasicInfo()" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='rgba(0,200,224,0.18)'" />
           </div>
         </div>
         <div style="display:flex;gap:10px;">
           <div style="flex:1;">
-            <input id="info-height" type="number" inputmode="numeric" placeholder="قد (سانتی‌متر)" min="100" max="230"
+            <input id="info-height" type="text" data-number-input inputmode="numeric" placeholder="قد (سانتی‌متر)" min="100" max="230"
               style="width:100%;padding:14px 15px;background:var(--navy-light);border:1.5px solid rgba(0,200,224,0.18);border-radius:14px;font-family:Vazirmatn,sans-serif;font-size:15px;font-weight:700;color:var(--text);outline:none;direction:rtl;transition:border-color .2s;"
-              value="${saved.height||''}" oninput="syncBasicInfo()" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='rgba(0,200,224,0.18)'" />
+              value="${saved.height||''}" oninput="this.value=window.normalizeNumberInput?window.normalizeNumberInput(this.value,false):this.value;syncBasicInfo()" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='rgba(0,200,224,0.18)'" />
           </div>
           <div style="flex:1;">
-            <input id="info-weight" type="number" inputmode="numeric" placeholder="وزن (کیلوگرم)" min="30" max="300"
+            <input id="info-weight" type="text" data-number-input data-decimal inputmode="decimal" placeholder="وزن (کیلوگرم)" min="30" max="300"
               style="width:100%;padding:14px 15px;background:var(--navy-light);border:1.5px solid rgba(0,200,224,0.18);border-radius:14px;font-family:Vazirmatn,sans-serif;font-size:15px;font-weight:700;color:var(--text);outline:none;direction:rtl;transition:border-color .2s;"
-              value="${saved.weight||''}" oninput="syncBasicInfo()" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='rgba(0,200,224,0.18)'" />
+              value="${saved.weight||''}" oninput="this.value=window.normalizeNumberInput?window.normalizeNumberInput(this.value,true):this.value;syncBasicInfo()" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='rgba(0,200,224,0.18)'" />
           </div>
         </div>
       </div>
@@ -927,5 +927,6 @@ document.addEventListener("keydown",e=>{if(e.key==="Enter"){const sf=document.ge
 syncPlaceholder();
 renderQ();
 </script>
+<script src="../webinar-assets/number-inputs.js"></script>
 </body>
 </html>
