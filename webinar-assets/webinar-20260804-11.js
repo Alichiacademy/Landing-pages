@@ -5,8 +5,10 @@
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec";
   const WEBINAR_SLUG = "formula-3";
   const WEBINAR_URL = "https://www.skyroom.online/ch/alialichi/formula3";
-  const WEBINAR_STARTS_AT = "2026-08-07T10:30:00Z";
-  const WEBINAR_ACCESS_OPENS_AT = "2026-08-07T10:25:00Z";
+  // Sunday, August 30, 2026 — 14:00 Tehran (10:30 UTC).
+  // Entry opens 15 minutes before the start.
+  const WEBINAR_STARTS_AT = "2026-08-30T10:30:00Z";
+  const WEBINAR_ACCESS_OPENS_AT = "2026-08-30T10:15:00Z";
   const pageType = document.body.dataset.page;
   const timezone = resolveTimezone();
   const source = readSource();
@@ -261,6 +263,80 @@
     };
   }
 
+  const SHEET_QUEUE_KEY = "alichi_webinar_sheet_queue_v2";
+  let sheetFlushPromise = null;
+
+  function readSheetQueue() {
+    try {
+      const value = JSON.parse(localStorage.getItem(SHEET_QUEUE_KEY) || "[]");
+      return Array.isArray(value) ? value.slice(-100) : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function writeSheetQueue(queue) {
+    try {
+      localStorage.setItem(SHEET_QUEUE_KEY, JSON.stringify(queue.slice(-100)));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function clientEventId() {
+    return randomToken() + "-" + Date.now().toString(36);
+  }
+
+  function removeSheetEvent(eventId) {
+    const queue = readSheetQueue().filter(item => item._client_event_id !== eventId);
+    writeSheetQueue(queue);
+  }
+
+  async function dispatchSheetPayload(payload) {
+    const controller = window.AbortController ? new AbortController() : null;
+    let timeoutId;
+    try {
+      const request = fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+        signal: controller ? controller.signal : undefined
+      });
+      await Promise.race([
+        request,
+        new Promise(function (_, reject) {
+          timeoutId = window.setTimeout(function () {
+            if (controller) controller.abort();
+            reject(new Error("sheet_timeout"));
+          }, 4500);
+        })
+      ]);
+      return true;
+    } catch (_) {
+      return false;
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    }
+  }
+
+  async function flushSheetQueue() {
+    if (sheetFlushPromise) return sheetFlushPromise;
+    sheetFlushPromise = (async function () {
+      const queue = readSheetQueue();
+      for (const payload of queue) {
+        const sent = await dispatchSheetPayload(payload);
+        if (!sent) break;
+        removeSheetEvent(payload._client_event_id);
+      }
+    })().finally(function () {
+      sheetFlushPromise = null;
+    });
+    return sheetFlushPromise;
+  }
+
   function saveToSheet(formName, fields) {
     const payload = {
       formName: formName,
@@ -268,29 +344,33 @@
       "منبع (Source)": sourceLabel(),
       "منطقه زمانی": timezone || "نامشخص",
       "ریجن مرورگر": browserRegion(),
-      "آدرس صفحه": window.location.href
+      "آدرس صفحه": window.location.href,
+      "_client_event_id": clientEventId(),
+      "_client_created_at_utc": new Date().toISOString(),
+      "_page_type": pageType || "unknown",
+      "_schema_version": "webinar-sheet-v2"
     };
-    try {
-      const request = fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        keepalive: true,
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      }).then(function () {
-        return true;
-      }).catch(function () {
-        return true;
-      });
-      const dispatched = new Promise(function (resolve) {
-        window.setTimeout(function () {
-          resolve(true);
-        }, 1500);
-      });
-      return Promise.race([request, dispatched]);
-    } catch (_) {
-      return Promise.resolve(false);
-    }
+    const queue = readSheetQueue();
+    queue.push(payload);
+    const queued = writeSheetQueue(queue);
+    return dispatchSheetPayload(payload).then(function (sent) {
+      if (sent) removeSheetEvent(payload._client_event_id);
+      flushSheetQueue();
+      let beaconQueued = false;
+      if (!sent && !queued && navigator.sendBeacon) {
+        try {
+          beaconQueued = navigator.sendBeacon(
+            GOOGLE_SCRIPT_URL,
+            new Blob([JSON.stringify(payload)], { type: "text/plain;charset=utf-8" })
+          );
+        } catch (_) {}
+      }
+      return {
+        accepted: sent || queued || beaconQueued,
+        dispatched: sent || beaconQueued,
+        queued: !sent && (queued || beaconQueued)
+      };
+    });
   }
 
   async function api(path, payload) {
@@ -444,7 +524,7 @@
     Object.entries(source).forEach(function (item) {
       if (item[1]) entryParams.set(item[0], item[1]);
     });
-    const entryPath = "../Formula3_webinar_entry/"
+    const entryPath = "https://tests.alichiacademy.ir/F3_w_e/index.html"
       + (entryParams.toString() ? "?" + entryParams.toString() : "");
     if (entryLink) entryLink.href = entryPath;
     const entryUrlInput = document.getElementById("webinarEntryUrl");
@@ -680,6 +760,17 @@
       }, 3500);
       try {
         const identity = await resolveIdentity();
+        await saveToSheet("Formula3_webinar_entry", {
+          "نام": fullName,
+          "شماره تماس": values.normalized.e164,
+          "کشور": values.country,
+          "وضعیت": "تلاش برای دریافت لینک ورود",
+          "مقصد": "بررسی در دیتابیس و شیت",
+          "دلیل هدایت": "entry_attempt",
+          "اثر دستگاه": identity.fingerprint,
+          "_event_type": "entry_attempt",
+          "_api_status": "pending"
+        });
         const result = await api("/webinars/" + WEBINAR_SLUG + "/entry", {
           raw_phone: values.normalized.raw,
           country_iso: values.country,
@@ -689,7 +780,7 @@
           fingerprint: identity.fingerprint,
           source_code: source.source_code
         });
-        saveToSheet("Formula3_webinar_entry", {
+        await saveToSheet("Formula3_webinar_entry", {
           "نام": fullName,
           "شماره تماس": values.normalized.e164,
           "کشور": values.country,
@@ -701,7 +792,9 @@
             : "عدم نمایش لینک اسکای‌روم",
           "دلیل هدایت": result.message || result.status,
           "سگمنت": result.status,
-          "اثر دستگاه": identity.fingerprint
+          "اثر دستگاه": identity.fingerprint,
+          "_event_type": "entry_result",
+          "_api_status": result.status
         });
         if (result.status !== "granted") {
           message.textContent = result.message;
@@ -716,9 +809,11 @@
           "کشور": values.country,
           "وضعیت": error.isNetworkError ? "دریافت لینک ورود وبینار فرمول ۳ - جایگزین" : "خطای بررسی ورود در API",
           "مقصد": error.isNetworkError ? "لینک اسکای‌روم وبینار" : "ثبت در شیت",
-          "دلیل هدایت": error.message
+          "دلیل هدایت": error.message,
+          "_event_type": "entry_api_error",
+          "_api_status": "failed"
         });
-        if (error.isNetworkError && sheetSaved) {
+        if (error.isNetworkError && sheetSaved.accepted) {
           revealClassAccess(accessCard, form, linkCard, WEBINAR_URL);
         } else {
           message.textContent = error.isNetworkError
@@ -735,6 +830,20 @@
   }
 
   function boot() {
+    flushSheetQueue();
+    window.addEventListener("online", flushSheetQueue);
+    window.addEventListener("pagehide", function () {
+      const queue = readSheetQueue();
+      if (!navigator.sendBeacon) return;
+      queue.forEach(function (payload) {
+        try {
+          navigator.sendBeacon(
+            GOOGLE_SCRIPT_URL,
+            new Blob([JSON.stringify(payload)], { type: "text/plain;charset=utf-8" })
+          );
+        } catch (_) {}
+      });
+    });
     if (pageType === "registration") initRegistration();
     if (pageType === "entry") initEntry();
   }
