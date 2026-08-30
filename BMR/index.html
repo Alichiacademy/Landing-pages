@@ -1434,7 +1434,9 @@ function handleSubmit() {
     "پروتئین روزانه": protein.mid
   });
   document.getElementById('screenForm').style.display = 'none';
-  document.getElementById('screenResult').style.display = 'flex';
+  // نتیجه باید به‌صورت بلوکی و عمودی نمایش داده شود؛ flex در موبایل
+  // بخش‌های نتیجه را کنار هم می‌چید و باعث به‌هم‌ریختگی صفحه می‌شد.
+  document.getElementById('screenResult').style.display = 'block';
 }
 
 function goTo(dest){

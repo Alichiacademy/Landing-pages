@@ -1075,7 +1075,9 @@ function handleSubmit(){
   });
 
   document.getElementById('screenForm').style.display='none';
-  document.getElementById('screenResult').style.display='flex';
+  // صفحه‌ی نتیجه باید به‌صورت بلوکی و عمودی نمایش داده شود؛
+  // display:flex باعث می‌شد کارت‌ها روی موبایل کنار هم قرار بگیرند.
+  document.getElementById('screenResult').style.display='block';
 }
 
 function syncPh(){

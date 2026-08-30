@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آکادمی دکتر علی چی</title>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;800;900&display=swap");
+
+  :root {
+    --navy: #0a1628;
+    --navy-light: #112244;
+    --cyan: #00c8e0;
+    --text: #e8f4f8;
+    --text-dim: rgba(232,244,248,0.55);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Vazirmatn", sans-serif;
+    font-weight: 700;
+    background: var(--navy);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: -30%; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,200,224,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    animation: pulse-bg 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-bg {
+    0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+  }
+
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,200,224,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,200,224,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 24px; width: 100%; max-width: 400px;
+  }
+
+  .logo-wrap {
+    margin-bottom: 28px;
+    display: flex; flex-direction: column; align-items: center;
+    animation: logo-in 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes logo-in {
+    from { opacity: 0; transform: scale(0.7) translateY(-20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .logo-img {
+    width: 100px; height: 100px;
+    border-radius: 22px;
+    filter: drop-shadow(0 0 24px rgba(0,200,224,0.45));
+    display: block;
+    background-color: var(--navy-light); /* در صورت لود نشدن عکس */
+  }
+
+  .brand-name {
+    margin-top: 12px; font-size: 15px; font-weight: 900;
+    color: var(--text-dim);
+    animation: fade-in 1s ease 0.3s forwards; opacity: 0;
+  }
+
+  @keyframes fade-in { to { opacity: 1; } }
+
+  /* FORM */
+  #screen-form {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px; width: 100%;
+    animation: fade-in 0.5s ease 0.4s forwards; opacity: 0;
+  }
+
+  .form-title {
+    font-size: 17px; font-weight: 900;
+    text-align: center; line-height: 1.8; color: var(--text);
+  }
+  .form-title span { color: var(--cyan); }
+
+  .divider {
+    width: 40px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    border-radius: 2px;
+  }
+
+  .input-wrap { width: 100%; }
+
+  .input-wrap input,
+  .input-wrap select {
+    width: 100%; padding: 16px 18px;
+    background: var(--navy-light);
+    border: 1.5px solid rgba(0,200,224,0.18);
+    border-radius: 14px;
+    font-family: "Vazirmatn", sans-serif;
+    font-size: 15px; font-weight: 700; color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    direction: rtl;
+  }
+
+  .input-wrap select {
+    appearance: none;
+    cursor: pointer;
+    color-scheme: dark;
+  }
+
+  .input-wrap input::placeholder { color: var(--text-dim); font-weight: 700; }
+  .input-wrap input:focus, .input-wrap select:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,200,224,0.1); }
+  .input-wrap input.error, .input-wrap select.error { border-color: #ff4d6d; box-shadow: 0 0 0 3px rgba(255,77,109,0.1); }
+
+  .phone-row {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 10px;
+    direction: ltr;
+  }
+
+  .phone-row select,
+  .phone-row input { direction: ltr; text-align: left; }
+
+  .field-hint {
+    color: var(--text-dim);
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 6px;
+    text-align: right;
+  }
+
+  @media (max-width: 360px) {
+    .phone-row { grid-template-columns: 1fr; }
+  }
+
+  .error-msg {
+    color: #ff4d6d; font-size: 12px; font-weight: 700;
+    margin-top: 6px; display: none; text-align: right;
+  }
+
+  .btn-submit {
+    width: 100%; padding: 18px 24px; border: none;
+    border-radius: 14px;
+    font-family: "Vazirmatn", sans-serif;
+    font-size: 18px; font-weight: 900; cursor: pointer;
+    background: linear-gradient(135deg, var(--cyan) 0%, #0099bb 100%);
+    color: var(--navy);
+    box-shadow: 0 4px 24px rgba(0,200,224,0.3);
+    transition: all 0.2s ease; margin-top: 4px;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,200,224,0.45); }
+
+  /* LOADING */
+  #screen-loading {
+    display: none; flex-direction: column; align-items: center; gap: 20px;
+  }
+
+  .loader-ring {
+    width: 48px; height: 48px;
+    border: 2px solid rgba(0,200,224,0.1);
+    border-top: 2px solid var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(0,200,224,0.5));
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 17px; font-weight: 800; color: var(--text-dim); }
+
+  /* FALLBACK */
+  #screen-fallback {
+    display: none; flex-direction: column; align-items: center;
+    gap: 16px; width: 100%;
+    animation: fade-in 0.4s ease forwards;
+  }
+
+  .fallback-title { font-size: 22px; font-weight: 900; text-align: center; color: var(--text); }
+  .fallback-sub { font-size: 13px; font-weight: 700; color: var(--text-dim); text-align: center; }
+
+  .btn-group { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 4px; }
+
+  .btn {
+    width: 100%; padding: 18px 24px; border: none;
+    border-radius: 14px;
+    font-family: "Vazirmatn", sans-serif;
+    font-size: 17px; font-weight: 900; cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+
+  .btn-iran {
+    background: linear-gradient(135deg, var(--cyan) 0%, #0099bb 100%);
+    color: var(--navy); box-shadow: 0 4px 24px rgba(0,200,224,0.3);
+  }
+  .btn-iran:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,200,224,0.45); }
+
+  .btn-abroad {
+    background: var(--navy-light); color: var(--text);
+    border: 1px solid rgba(0,200,224,0.2);
+  }
+  .btn-abroad:hover { transform: translateY(-2px); border-color: rgba(0,200,224,0.5); }
+
+  /* REDIRECT */
+  #screen-redirect {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .redirect-icon {
+    width: 64px; height: 64px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center; font-size: 30px;
+    animation: bounce-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+  @keyframes bounce-in {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .redirect-icon.telegram { background: linear-gradient(135deg, #2AABEE, #229ED9); box-shadow: 0 8px 24px rgba(42,171,238,0.4); }
+  .redirect-icon.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); box-shadow: 0 8px 24px rgba(37,211,102,0.4); }
+
+  .redirect-text { font-size: 18px; font-weight: 900; color: var(--text); text-align: center; }
+  .redirect-sub { font-size: 14px; font-weight: 700; color: var(--text-dim); text-align: center; }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="container">
+
+  <div class="logo-wrap">
+    <!-- آدرس لوگو را در صورت نیاز ویرایش کن -->
+    <img class="logo-img" src="https://media.alichiacademy.ir/file_00000000b8d471fd99286105ccafe95a.png">
+    <div class="brand-name">آکادمی دکتر علی چی</div>
+  </div>
+
+  <div id="screen-form">
+    <div class="form-title">
+      یه قدم تا عضویت در کانال VIP تلگرام<br>
+      <span>اطلاعاتت رو وارد کن تا وارد کانال بشی</span>
+    </div>
+    <div class="divider"></div>
+    <div class="input-wrap">
+      <input type="text" id="input-name" placeholder="نام و نام خانوادگی" autocomplete="off" />
+      <div class="error-msg" id="err-name">نام رو وارد کن</div>
+    </div>
+    <div class="input-wrap">
+      <div class="field-hint" style="margin-bottom:10px;padding:10px 12px;border:1px solid #fbbf24;border-radius:10px;background:rgba(251,191,36,.12);color:#fbbf24;font-size:13px;font-weight:800;">🌍 خارج از ایران هستی؟ پیش‌شماره‌ی خودت رو وارد کن.</div>
+      <div class="phone-row">
+        <select id="input-country" aria-label="انتخاب کشور">
+          <option value="IR" data-dial="98" selected>🇮🇷 ایران +98</option>
+          <option value="AF" data-dial="93">🇦🇫 افغانستان +93</option>
+          <option value="TR" data-dial="90">🇹🇷 ترکیه +90</option>
+          <option value="AE" data-dial="971">🇦🇪 امارات +971</option>
+          <option value="IQ" data-dial="964">🇮🇶 عراق +964</option>
+          <option value="US" data-dial="1">🇺🇸 آمریکا +1</option>
+          <option value="CA" data-dial="1">🇨🇦 کانادا +1</option>
+          <option value="GB" data-dial="44">🇬🇧 انگلستان +44</option>
+          <option value="DE" data-dial="49">🇩🇪 آلمان +49</option>
+          <option value="FR" data-dial="33">🇫🇷 فرانسه +33</option>
+          <option value="NL" data-dial="31">🇳🇱 هلند +31</option>
+          <option value="SE" data-dial="46">🇸🇪 سوئد +46</option>
+          <option value="AU" data-dial="61">🇦🇺 استرالیا +61</option>
+          <option value="OTHER" data-dial="">🌍 کشور دیگر</option>
+        </select>
+        <input type="tel" id="input-phone" placeholder="9123456789" autocomplete="tel" inputmode="tel" dir="ltr" />
+      </div>
+      <div class="error-msg" id="err-phone">شماره معتبر وارد کن</div>
+      <div class="field-hint" id="phone-hint">پیش‌شماره +98 انتخاب شده؛ شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن.</div>
+    </div>
+    <button class="btn-submit" onclick="handleSubmit()">عضویت در کانال VIP ←</button>
+  </div>
+
+  <div id="screen-loading">
+    <div class="loader-ring"></div>
+    <div class="loading-text">در حال آماده‌سازی لینک عضویت...</div>
+  </div>
+
+  <div id="screen-fallback">
+    <div class="fallback-title">عضویت در کانال VIP تلگرام</div>
+    <div class="divider"></div>
+    <div class="fallback-sub">یکی از گزینه‌ها را انتخاب کن تا وارد کانال شوی</div>
+    <div class="btn-group">
+      <button class="btn btn-iran" onclick="goTo('telegram')">عضویت در کانال</button>
+      <button class="btn btn-abroad" onclick="goTo('telegram_abroad')">باز کردن تلگرام</button>
+    </div>
+  </div>
+
+  <div id="screen-redirect">
+    <div class="redirect-icon" id="redirect-icon"></div>
+    <div class="redirect-text" id="redirect-text"></div>
+    <div class="redirect-sub" id="redirect-sub"></div>
+  </div>
+
+</div>
+
+<script>
+  // ==========================================
+  // تنظیمات اصلی کد 
+  // ==========================================
+  const FORM_NAME = "TelegramVIP-new"; // نام شیت ثبت‌نام کانال VIP
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzDVP7V8LBLVlJQgdss5NSph8fQaZqPt1500MWynUt6RNafclVV88BK_Tdvy1Ij4TzKcA/exec"; 
+  const TELEGRAM_VIP = "https://t.me/Alichiacademy1";
+  const TELEGRAM_ABROAD = TELEGRAM_VIP;
+  
+  // خواندن پارامتر سورس از لینک
+  const urlParams = new URLSearchParams(window.location.search);
+  const SOURCE_LABEL = urlParams.get('source') || urlParams.get('utm_source') || "بدون تگ / ارگانیک";
+
+  // ==========================================
+  // مقصد ثابت عضویت در کانال VIP
+  // ==========================================
+  function getTelegramSupport() {
+    return {
+      url: TELEGRAM_VIP,
+      accountName: "Alichiacademy1"
+    };
+  }
+
+  const PHONE_RULES = {
+    IR: { dial: "98", min: 10, max: 10, mobile: /^9\d{9}$/, sample: "9123456789", name: "ایران" },
+    AF: { dial: "93", min: 9, max: 9, mobile: /^7\d{8}$/, sample: "701234567", name: "افغانستان" },
+    TR: { dial: "90", min: 10, max: 10, mobile: /^5\d{9}$/, sample: "5012345678", name: "ترکیه" },
+    AE: { dial: "971", min: 9, max: 9, mobile: /^5\d{8}$/, sample: "501234567", name: "امارات" },
+    IQ: { dial: "964", min: 10, max: 10, mobile: /^7\d{9}$/, sample: "7712345678", name: "عراق" },
+    US: { dial: "1", min: 10, max: 10, mobile: /^[2-9]\d{9}$/, sample: "2025550123", name: "آمریکا" },
+    CA: { dial: "1", min: 10, max: 10, mobile: /^[2-9]\d{9}$/, sample: "4165550123", name: "کانادا" },
+    GB: { dial: "44", min: 10, max: 10, mobile: /^7\d{9}$/, sample: "7123456789", name: "انگلستان" },
+    DE: { dial: "49", min: 10, max: 11, mobile: /^1[5-7]\d{8,9}$/, sample: "15123456789", name: "آلمان" },
+    FR: { dial: "33", min: 9, max: 9, mobile: /^[67]\d{8}$/, sample: "612345678", name: "فرانسه" },
+    NL: { dial: "31", min: 9, max: 9, mobile: /^6\d{8}$/, sample: "612345678", name: "هلند" },
+    SE: { dial: "46", min: 9, max: 9, mobile: /^7\d{8}$/, sample: "701234567", name: "سوئد" },
+    AU: { dial: "61", min: 9, max: 9, mobile: /^4\d{8}$/, sample: "412345678", name: "استرالیا" }
+  };
+
+  const COUNTRY_BY_DIAL = Object.keys(PHONE_RULES)
+    .sort((a, b) => PHONE_RULES[b].dial.length - PHONE_RULES[a].dial.length);
+
+  let userData = {};
+
+  function toEnglishDigits(value) {
+    const persian = "۰۱۲۳۴۵۶۷۸۹";
+    const arabic = "٠١٢٣٤٥٦٧٨٩";
+    return String(value || "").replace(/[۰-۹٠-٩]/g, digit => {
+      const persianIndex = persian.indexOf(digit);
+      return persianIndex > -1 ? persianIndex : arabic.indexOf(digit);
+    });
+  }
+
+  function cleanPhone(value) {
+    return toEnglishDigits(value).replace(/[^\d+]/g, "").replace(/(?!^)\+/g, "");
+  }
+
+  function getCountryRule(countryCode) {
+    return PHONE_RULES[countryCode] || null;
+  }
+
+  function detectCountryFromInternational(phone) {
+    const digits = phone.replace(/^\+|^00/, "");
+    return COUNTRY_BY_DIAL.find(code => digits.startsWith(PHONE_RULES[code].dial)) || null;
+  }
+
+  function stripDialPrefix(cleanedPhone, rule) {
+    let digits = cleanedPhone.replace(/^\+/, "");
+    if (digits.startsWith("00")) digits = digits.slice(2);
+    if (digits.startsWith(rule.dial)) digits = digits.slice(rule.dial.length);
+    if (digits.startsWith("0")) digits = digits.slice(1);
+    return digits;
+  }
+
+  function validatePhone(rawPhone, selectedCountry) {
+    const cleaned = cleanPhone(rawPhone);
+    if (!cleaned) return { valid: false, message: "شماره موبایل رو وارد کن" };
+
+    const detectedCountry = cleaned.startsWith("+") || cleaned.startsWith("00")
+      ? detectCountryFromInternational(cleaned)
+      : null;
+    const countryCode = detectedCountry || selectedCountry;
+    const rule = getCountryRule(countryCode);
+
+    if (!rule) {
+      if (!/^(?:\+|00)/.test(cleaned)) {
+        return { valid: false, message: "برای کشور دیگر، شماره را با پیش‌شماره کامل وارد کن؛ مثل +4915123456789" };
+      }
+      const genericDigits = cleaned.replace(/^\+|^00/, "").replace(/^0+/, "");
+      const genericValid = /^\d{8,15}$/.test(genericDigits);
+      return genericValid
+        ? { valid: true, countryCode: "OTHER", countryName: "کشور دیگر", national: genericDigits, e164: "+" + genericDigits, isIranPhone: genericDigits.startsWith("98") }
+        : { valid: false, message: "شماره بین‌المللی معتبر وارد کن؛ مثل +989123456789" };
+    }
+
+    const national = stripDialPrefix(cleaned, rule);
+    if (national.length < rule.min || national.length > rule.max || !rule.mobile.test(national)) {
+      return { valid: false, message: `شماره ${rule.name} معتبر نیست؛ نمونه: ${rule.sample}` };
+    }
+
+    return {
+      valid: true,
+      countryCode,
+      countryName: rule.name,
+      national,
+      e164: `+${rule.dial}${national}`,
+      isIranPhone: countryCode === "IR"
+    };
+  }
+
+  function getTimezone() {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone; }
+    catch(e) { return null; }
+  }
+
+  function getBrowserRegion() {
+    const langs = navigator.languages || [navigator.language || ""];
+    for (const lang of langs) {
+      const match = String(lang).toUpperCase().match(/-([A-Z]{2})$/);
+      if (match) return match[1];
+    }
+    return null;
+  }
+
+  function getIranSignals(phoneInfo) {
+    const timezone = getTimezone();
+    const browserRegion = getBrowserRegion();
+    const timezoneKnown = Boolean(timezone);
+
+    return {
+      phoneIran: phoneInfo.isIranPhone,
+      timezoneIran: timezone === "Asia/Tehran",
+      timezoneKnown: timezoneKnown,
+      timezone: timezone,
+      browserRegion: browserRegion 
+    };
+  }
+
+  function decide(phoneInfo, signals) {
+    // این صفحه همیشه برای عضویت در یک کانال مشخص استفاده می‌شود؛
+    // بنابراین مستقل از کشور یا منطقه‌ی زمانی، همه به همان کانال هدایت می‌شوند.
+    return {
+      dest: "telegram",
+      location: "کانال VIP تلگرام",
+      segment: "vip_channel",
+      reason: "ثبت‌نام عضویت کانال VIP"
+    };
+  }
+
+  // تابع ارسال داده‌ها
+  function saveToSheet(name, phone, location, details = {}, redirectUrl) {
+    try {
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+        body: JSON.stringify({ formName: FORM_NAME, name, phone, location, ...details })
+      }).then(() => { window.location.href = redirectUrl; }).catch(() => { window.location.href = redirectUrl; });
+    } catch(e) { window.location.href = redirectUrl; }
+  }
+
+  function showRedirect(dest, url) {
+    const icon = document.getElementById("redirect-icon");
+    const text = document.getElementById("redirect-text");
+    const sub = document.getElementById("redirect-sub");
+    document.getElementById("screen-redirect").style.display = "flex";
+
+    icon.className = "redirect-icon telegram";
+    icon.textContent = "✈️";
+    text.textContent = "در حال انتقال به تلگرام...";
+    sub.textContent = (dest === "telegram") ? "چند لحظه کوتاه..." : "Just a moment...";
+    
+    setTimeout(() => { window.location.href = url; }, 1200);
+  }
+
+  function goTo(dest) {
+    document.getElementById("screen-fallback").style.display = "none";
+    const location = dest === "telegram" ? "داخل ایران" : "خارج از ایران";
+    const segment = dest === "telegram" ? "manual_inside_iran" : "manual_abroad";
+
+    let finalUrl, supportName;
+    if (dest === "telegram") {
+      const tgInfo = getTelegramSupport();
+      finalUrl = tgInfo.url;
+      supportName = "@" + tgInfo.accountName;
+    } else {
+      finalUrl = TELEGRAM_ABROAD;
+      supportName = "@Alichiacademy1";
+    }
+
+    saveToSheet(userData.name, userData.phone, location, { 
+      country: userData.countryName, 
+      segment: segment, 
+      decision: "انتخاب دستی توسط کاربر",
+      timezone: userData.signals ? userData.signals.timezone : "نامشخص",
+      browserRegion: userData.signals ? userData.signals.browserRegion : "نامشخص",
+      source: SOURCE_LABEL,
+      supportAccount: supportName
+    }, finalUrl);
+    
+    showRedirect(dest, finalUrl);
+  }
+
+  function setPhoneError(message) {
+    document.getElementById("err-phone").textContent = message || "شماره معتبر وارد کن";
+    document.getElementById("err-phone").style.display = "block";
+    document.getElementById("input-phone").classList.add("error");
+    document.getElementById("input-country").classList.add("error");
+  }
+
+  function clearPhoneError() {
+    document.getElementById("err-phone").style.display = "none";
+    document.getElementById("input-phone").classList.remove("error");
+    document.getElementById("input-country").classList.remove("error");
+  }
+
+  function handleSubmit() {
+    const name = document.getElementById("input-name").value;
+    const phone = document.getElementById("input-phone").value;
+    const selectedCountry = document.getElementById("input-country").value;
+    const phoneInfo = validatePhone(phone, selectedCountry);
+    let valid = true;
+
+    if (name.trim().length < 3) {
+      document.getElementById("err-name").style.display = "block";
+      document.getElementById("input-name").classList.add("error");
+      valid = false;
+    } else {
+      document.getElementById("err-name").style.display = "none";
+      document.getElementById("input-name").classList.remove("error");
+    }
+
+    if (!phoneInfo.valid) {
+      setPhoneError(phoneInfo.message);
+      valid = false;
+    } else {
+      clearPhoneError();
+    }
+
+    if (!valid) return;
+
+    const signals = getIranSignals(phoneInfo);
+
+    userData = {
+      name: name.trim(),
+      phone: phoneInfo.e164,
+      countryCode: phoneInfo.countryCode,
+      countryName: phoneInfo.countryName,
+      signals: signals
+    };
+
+    document.getElementById("input-phone").value = phoneInfo.e164;
+    document.getElementById("screen-form").style.display = "none";
+    document.getElementById("screen-loading").style.display = "flex";
+
+    setTimeout(() => {
+      document.getElementById("screen-loading").style.display = "none";
+      const result = decide(phoneInfo, signals);
+
+      if (result.dest === "fallback") {
+        document.getElementById("screen-fallback").style.display = "flex";
+      } else {
+        let finalUrl, supportName;
+        if (result.dest === "telegram") {
+          const tgInfo = getTelegramSupport();
+          finalUrl = tgInfo.url;
+          supportName = "@" + tgInfo.accountName;
+        } else {
+          finalUrl = TELEGRAM_ABROAD;
+          supportName = "@Alichiacademy1";
+        }
+
+        saveToSheet(userData.name, userData.phone, result.location, {
+          country: userData.countryName,
+          segment: result.segment,
+          decision: result.reason,
+          timezone: signals.timezone,
+          browserRegion: signals.browserRegion,
+          source: SOURCE_LABEL,
+          supportAccount: supportName
+        }, finalUrl);
+
+        showRedirect(result.dest, finalUrl);
+      }
+    }, 800);
+  }
+
+  function syncPhonePlaceholder() {
+    const country = document.getElementById("input-country").value;
+    const rule = getCountryRule(country);
+    const input = document.getElementById("input-phone");
+    const hint = document.getElementById("phone-hint");
+    input.placeholder = rule ? rule.sample : "+989123456789";
+    hint.textContent = rule
+      ? `پیش‌شماره +${rule.dial} (${rule.name}) انتخاب شده؛ شماره را با ارقام فارسی یا انگلیسی و بدون صفر اول وارد کن.`
+      : "برای کشور دیگر، شماره را با پیش‌شماره کامل وارد کن؛ مثل +4915123456789. ارقام فارسی و انگلیسی پذیرفته می‌شوند.";
+    clearPhoneError();
+  }
+
+  document.getElementById("input-country").addEventListener("change", syncPhonePlaceholder);
+  document.getElementById("input-phone").addEventListener("input", event => {
+    event.target.value = toEnglishDigits(event.target.value);
+    clearPhoneError();
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Enter") handleSubmit(); });
+  syncPhonePlaceholder();
+</script>
+</body>
+</html>
