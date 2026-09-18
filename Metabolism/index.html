@@ -743,8 +743,8 @@
     <div class="divider-line" style="margin:0 auto"></div>
     <div class="fallback-sub">انتخاب کن تا بهترین راه ارتباطی رو برات باز کنم</div>
     <div class="btn-group">
-      <button class="btn-primary" onclick="goTo('telegram')">📍 داخل ایران — تلگرام</button>
-      <button class="btn-primary btn-abroad" onclick="goTo('telegram_abroad')">✈️ خارج از ایران — تلگرام</button>
+      <button class="btn-primary" onclick="goTo('telegram')">📍 داخل ایران</button>
+      <button class="btn-primary btn-abroad" onclick="goTo('telegram_abroad')">✈️ خارج از ایران</button>
     </div>
   </div>
 
@@ -1435,7 +1435,7 @@ function doRedirect(dest, url){
   const text = document.getElementById('redirectText');
   const sub = document.getElementById('redirectSub');
   
-  icon.textContent = '✈️'; 
+  icon.textContent = IS_BALE_SOURCE ? '💬' : '✈️';
   text.textContent = `در حال انتقال به ${getRedirectPlatformText()}...`;
   sub.textContent = IS_BALE_SOURCE ? "چند لحظه کوتاه..." : (dest === "telegram" ? "لحظه‌ای صبر کن" : "Just a moment");
   setTimeout(() => { window.location.href = url; }, 1200);

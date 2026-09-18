@@ -761,7 +761,7 @@ function doRedirect(dest, url){
   const sub=document.getElementById("redirect-sub");
   document.getElementById("screen-redirect").style.display="flex";
   
-  icon.textContent="✈️";
+  icon.textContent=IS_BALE_SOURCE ? "💬" : "✈️";
   text.textContent = `در حال انتقال به ${getRedirectPlatformText()}...`;
   sub.textContent = IS_BALE_SOURCE ? "چند لحظه کوتاه..." : ((dest === "telegram") ? "لحظه‌ای صبر کن" : "Just a moment...");
   

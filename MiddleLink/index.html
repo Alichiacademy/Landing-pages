@@ -532,8 +532,8 @@ function getRedirectPlatformText() {
     const sub = document.getElementById("redirect-sub");
     document.getElementById("screen-redirect").style.display = "flex";
 
-    icon.className = "redirect-icon telegram";
-    icon.textContent = "✈️";
+    icon.className = IS_BALE_SOURCE ? "redirect-icon" : "redirect-icon telegram";
+    icon.textContent = IS_BALE_SOURCE ? "💬" : "✈️";
     text.textContent = `در حال انتقال به ${getRedirectPlatformText()}...`;
     sub.textContent = IS_BALE_SOURCE ? "چند لحظه کوتاه..." : ((dest === "telegram") ? "چند لحظه کوتاه..." : "Just a moment...");
     
