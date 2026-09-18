@@ -165,6 +165,7 @@
   .redirect-icon{font-size:60px}
   .redirect-text{font-size:20px;font-weight:900;color:var(--text)}
   .redirect-sub{font-size:15px;color:var(--text-dim)}
+  @media(max-width:480px){.phone-row{grid-template-columns:1fr}.question-text{font-size:17px}}
 </style>
 </head>
 <body>
@@ -304,6 +305,28 @@ const TELEGRAM_ABROAD  = "https://t.me/Alichiacademy3";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SOURCE_LABEL = urlParams.get('source') || urlParams.get('utm_source') || "بدون تگ / ارگانیک";
+const BALE_SUPPORT_URL = "https://ble.ir/Alichiacademy2";
+const IS_BALE_SOURCE = SOURCE_LABEL.trim().toLowerCase() === "bale";
+
+function getBaleAwareSupport() {
+  if (IS_BALE_SOURCE) return { url: BALE_SUPPORT_URL, accountName: "Alichiacademy2", platform: "bale" };
+  const tgInfo = getTelegramSupport();
+  return { url: tgInfo.url, accountName: tgInfo.accountName, platform: "telegram" };
+}
+
+function getBaleAwareAbroadSupport() {
+  if (IS_BALE_SOURCE) return { url: BALE_SUPPORT_URL, accountName: "Alichiacademy2", platform: "bale" };
+  return { url: TELEGRAM_ABROAD, accountName: "Alichiacademy3", platform: "telegram" };
+}
+
+function getSupportLabel(supportInfo) {
+  return supportInfo.platform === "bale" ? "بله @" + supportInfo.accountName : "@" + supportInfo.accountName;
+}
+
+function getRedirectPlatformText() {
+  return IS_BALE_SOURCE ? "بله" : "تلگرام";
+}
+
 
 // تابع توزیع هوشمند بر اساس ساعت ایران
 function getTelegramSupport() {
@@ -549,6 +572,7 @@ function getTimezone(){try{return Intl.DateTimeFormat().resolvedOptions().timeZo
 function getBrowserRegion(){for(const l of(navigator.languages||[navigator.language||""])){const m=String(l).toUpperCase().match(/-([A-Z]{2})$/);if(m)return m[1];}return null;}
 
 function decide(pi){
+  if (IS_BALE_SOURCE) return {dest:"telegram", location:"بله", segment:"bale_source"};
   const tz=getTimezone(),br=getBrowserRegion();
   const tzIran=tz==="Asia/Tehran",tzAbroad=tz&&tz!=="Asia/Tehran";
   const brAbroad=br&&br!=="IR"&&br!=="AF",brIran=br==="IR"&&tz==="Asia/Tehran";
@@ -668,12 +692,13 @@ function handleSubmit(){
 
   let finalUrl = "", supportName = "نامشخص";
   if (locationDecision.dest === "telegram") {
-    const tgInfo = getTelegramSupport();
-    finalUrl = tgInfo.url;
-    supportName = "@" + tgInfo.accountName;
+    const supportInfo = getBaleAwareSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   } else if (locationDecision.dest === "telegram_abroad") {
-    finalUrl = TELEGRAM_ABROAD;
-    supportName = "@Alichiacademy3";
+    const supportInfo = getBaleAwareAbroadSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   }
   locationDecision.finalUrl = finalUrl;
   locationDecision.supportName = supportName;
@@ -707,12 +732,13 @@ function goTo(dest){
   
   let finalUrl, supportName;
   if (dest === "telegram") {
-    const tgInfo = getTelegramSupport();
-    finalUrl = tgInfo.url;
-    supportName = "@" + tgInfo.accountName;
+    const supportInfo = getBaleAwareSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   } else {
-    finalUrl = TELEGRAM_ABROAD;
-    supportName = "@Alichiacademy3";
+    const supportInfo = getBaleAwareAbroadSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   }
 
   saveToSheet({
@@ -736,8 +762,8 @@ function doRedirect(dest, url){
   document.getElementById("screen-redirect").style.display="flex";
   
   icon.textContent="✈️";
-  text.textContent="در حال انتقال به تلگرام...";
-  sub.textContent= (dest === "telegram") ? "لحظه‌ای صبر کن" : "Just a moment...";
+  text.textContent = `در حال انتقال به ${getRedirectPlatformText()}...`;
+  sub.textContent = IS_BALE_SOURCE ? "چند لحظه کوتاه..." : ((dest === "telegram") ? "لحظه‌ای صبر کن" : "Just a moment...");
   
   setTimeout(()=>{window.location.href=url}, 1200);
 }

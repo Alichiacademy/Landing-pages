@@ -150,7 +150,7 @@
     text-align: right;
   }
 
-  @media (max-width: 360px) {
+  @media (max-width: 480px) {
     .phone-row { grid-template-columns: 1fr; }
   }
 
@@ -326,6 +326,28 @@
   // خواندن پارامتر سورس از لینک
   const urlParams = new URLSearchParams(window.location.search);
   const SOURCE_LABEL = urlParams.get('source') || urlParams.get('utm_source') || "بدون تگ / ارگانیک";
+const BALE_SUPPORT_URL = "https://ble.ir/Alichiacademy2";
+const IS_BALE_SOURCE = SOURCE_LABEL.trim().toLowerCase() === "bale";
+
+function getBaleAwareSupport() {
+  if (IS_BALE_SOURCE) return { url: BALE_SUPPORT_URL, accountName: "Alichiacademy2", platform: "bale" };
+  const tgInfo = getTelegramSupport();
+  return { url: tgInfo.url, accountName: tgInfo.accountName, platform: "telegram" };
+}
+
+function getBaleAwareAbroadSupport() {
+  if (IS_BALE_SOURCE) return { url: BALE_SUPPORT_URL, accountName: "Alichiacademy2", platform: "bale" };
+  return { url: TELEGRAM_ABROAD, accountName: "Alichiacademy3", platform: "telegram" };
+}
+
+function getSupportLabel(supportInfo) {
+  return supportInfo.platform === "bale" ? "بله @" + supportInfo.accountName : "@" + supportInfo.accountName;
+}
+
+function getRedirectPlatformText() {
+  return IS_BALE_SOURCE ? "بله" : "تلگرام";
+}
+
 
   // ==========================================
   // تابع توزیع هوشمند بر اساس ساعت ایران
@@ -470,6 +492,7 @@
   }
 
   function decide(phoneInfo, signals) {
+    if (IS_BALE_SOURCE) return { dest: "telegram", location: "بله", segment: "bale_source", reason: "سورس بله" };
     const tzAbroad = signals.timezoneKnown && !signals.timezoneIran;
     
     // 1. اولویت قطعی با بررسی تایم‌زون
@@ -511,8 +534,8 @@
 
     icon.className = "redirect-icon telegram";
     icon.textContent = "✈️";
-    text.textContent = "در حال انتقال به تلگرام...";
-    sub.textContent = (dest === "telegram") ? "چند لحظه کوتاه..." : "Just a moment...";
+    text.textContent = `در حال انتقال به ${getRedirectPlatformText()}...`;
+    sub.textContent = IS_BALE_SOURCE ? "چند لحظه کوتاه..." : ((dest === "telegram") ? "چند لحظه کوتاه..." : "Just a moment...");
     
     setTimeout(() => { window.location.href = url; }, 1200);
   }
@@ -524,12 +547,13 @@
 
     let finalUrl, supportName;
     if (dest === "telegram") {
-      const tgInfo = getTelegramSupport();
-      finalUrl = tgInfo.url;
-      supportName = "@" + tgInfo.accountName;
+      const supportInfo = getBaleAwareSupport();
+      finalUrl = supportInfo.url;
+      supportName = getSupportLabel(supportInfo);
     } else {
-      finalUrl = TELEGRAM_ABROAD;
-      supportName = "@Alichiacademy3";
+      const supportInfo = getBaleAwareAbroadSupport();
+      finalUrl = supportInfo.url;
+      supportName = getSupportLabel(supportInfo);
     }
 
     saveToSheet(userData.name, userData.phone, location, { 
@@ -606,12 +630,13 @@
       } else {
         let finalUrl, supportName;
         if (result.dest === "telegram") {
-          const tgInfo = getTelegramSupport();
-          finalUrl = tgInfo.url;
-          supportName = "@" + tgInfo.accountName;
+          const supportInfo = getBaleAwareSupport();
+          finalUrl = supportInfo.url;
+          supportName = getSupportLabel(supportInfo);
         } else {
-          finalUrl = TELEGRAM_ABROAD;
-          supportName = "@Alichiacademy3";
+          const supportInfo = getBaleAwareAbroadSupport();
+          finalUrl = supportInfo.url;
+          supportName = getSupportLabel(supportInfo);
         }
 
         saveToSheet(userData.name, userData.phone, result.location, {

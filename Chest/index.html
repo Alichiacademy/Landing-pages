@@ -165,7 +165,7 @@
   .redirect-icon.telegram{background:linear-gradient(135deg,#2AABEE,#229ED9);box-shadow:0 8px 28px rgba(42,171,238,0.45)}
   .redirect-text{font-size:19px;font-weight:900;text-align:center}
   .redirect-sub{font-size:14px;color:var(--text-dim);text-align:center}
-  @media(max-width:360px){.phone-row{grid-template-columns:1fr}.question-text{font-size:17px}}
+  @media(max-width:480px){.phone-row{grid-template-columns:1fr}.question-text{font-size:17px}}
 </style>
 </head>
 <body>
@@ -304,6 +304,28 @@ const TELEGRAM_ABROAD  = "https://t.me/Alichiacademy3";
 
 const urlParams = new URLSearchParams(window.location.search);
 const SOURCE_LABEL = urlParams.get('source') || urlParams.get('utm_source') || "بدون تگ / ارگانیک";
+const BALE_SUPPORT_URL = "https://ble.ir/Alichiacademy2";
+const IS_BALE_SOURCE = SOURCE_LABEL.trim().toLowerCase() === "bale";
+
+function getBaleAwareSupport() {
+  if (IS_BALE_SOURCE) return { url: BALE_SUPPORT_URL, accountName: "Alichiacademy2", platform: "bale" };
+  const tgInfo = getTelegramSupport();
+  return { url: tgInfo.url, accountName: tgInfo.accountName, platform: "telegram" };
+}
+
+function getBaleAwareAbroadSupport() {
+  if (IS_BALE_SOURCE) return { url: BALE_SUPPORT_URL, accountName: "Alichiacademy2", platform: "bale" };
+  return { url: TELEGRAM_ABROAD, accountName: "Alichiacademy3", platform: "telegram" };
+}
+
+function getSupportLabel(supportInfo) {
+  return supportInfo.platform === "bale" ? "بله @" + supportInfo.accountName : "@" + supportInfo.accountName;
+}
+
+function getRedirectPlatformText() {
+  return IS_BALE_SOURCE ? "بله" : "تلگرام";
+}
+
 
 function getTelegramSupport() {
   const options = { timeZone: 'Asia/Tehran', hour: 'numeric', hour12: false };
@@ -558,6 +580,7 @@ function getTimezone(){try{return Intl.DateTimeFormat().resolvedOptions().timeZo
 function getBrowserRegion(){for(const l of(navigator.languages||[navigator.language||""])){const m=String(l).toUpperCase().match(/-([A-Z]{2})$/);if(m)return m[1];}return null;}
 
 function decide(pi){
+  if (IS_BALE_SOURCE) return {dest:"telegram", location:"بله", segment:"bale_source"};
   const tz=getTimezone(),br=getBrowserRegion();
   const tzIran=tz==="Asia/Tehran",tzAbroad=tz&&tz!=="Asia/Tehran";
   const brAbroad=br&&br!=="IR"&&br!=="AF",brIran=br==="IR"&&tz==="Asia/Tehran";
@@ -677,12 +700,13 @@ function handleSubmit(){
 
   let finalUrl = "", supportName = "نامشخص";
   if (locationDecision.dest === "telegram") {
-    const tgInfo = getTelegramSupport();
-    finalUrl = tgInfo.url;
-    supportName = "@" + tgInfo.accountName;
+    const supportInfo = getBaleAwareSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   } else if (locationDecision.dest === "telegram_abroad") {
-    finalUrl = TELEGRAM_ABROAD;
-    supportName = "@Alichiacademy3";
+    const supportInfo = getBaleAwareAbroadSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   }
   locationDecision.finalUrl = finalUrl;
   locationDecision.supportName = supportName;
@@ -716,12 +740,13 @@ function goTo(dest){
   
   let finalUrl, supportName;
   if (dest === "telegram") {
-    const tgInfo = getTelegramSupport();
-    finalUrl = tgInfo.url;
-    supportName = "@" + tgInfo.accountName;
+    const supportInfo = getBaleAwareSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   } else {
-    finalUrl = TELEGRAM_ABROAD;
-    supportName = "@Alichiacademy3";
+    const supportInfo = getBaleAwareAbroadSupport();
+    finalUrl = supportInfo.url;
+    supportName = getSupportLabel(supportInfo);
   }
 
   saveToSheet({
@@ -746,8 +771,8 @@ function doRedirect(dest, url){
   
   icon.className="redirect-icon telegram";
   icon.textContent="✈️";
-  text.textContent="در حال انتقال به تلگرام...";
-  sub.textContent= (dest === "telegram") ? "لحظه‌ای صبر کن" : "Just a moment...";
+  text.textContent = `در حال انتقال به ${getRedirectPlatformText()}...`;
+  sub.textContent = IS_BALE_SOURCE ? "چند لحظه کوتاه..." : ((dest === "telegram") ? "لحظه‌ای صبر کن" : "Just a moment...");
   
   setTimeout(()=>{window.location.href=url}, 1200);
 }
